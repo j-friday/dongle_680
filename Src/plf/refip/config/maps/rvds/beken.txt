@@ -1,0 +1,27 @@
+ROOT  0x00000000 0x00080000
+{
+   ROM   0x00000000 0x00080000
+   {
+        vectors.o(Startup, +FIRST)
+        *(+RO)
+   }
+  
+   RAM   0x00400000 0x00020000
+   {
+        *(+RW, +ZI)
+   }
+   /*
+   AHBMEM_INIT 0x00820000 0x20000
+   {
+        bk7271testdata.o(ahbmem_sector)       
+   }
+
+   AHBMEM_UNINIT +0 UNINIT 
+   {
+        bk7271wifiinit.o(ahbmem_sector)        
+   }
+   */  
+}
+
+
+

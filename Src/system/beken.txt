@@ -1,0 +1,21 @@
+#include "Vectors.s"
+ROOT  0x00000000 0x00080000
+{
+   ROM   0x00000000 0x00080000
+   {
+        vectors.o(Startup, +FIRST)
+        *(+RO)
+   }
+  
+   RAM   0x00400000 0x00010000
+   {
+        *(+RW, +ZI)
+   }
+   
+   
+   ScatterAssert((LoadLength(ROM) + LoadLength(RAM)) < 512 * 1024)
+   ScatterAssert(LoadLength(RAM) < 64 * 1024)
+}
+
+
+
