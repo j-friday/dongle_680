@@ -98,6 +98,7 @@ typedef struct
     uint16_t ble_buf_size;
     uint32_t baudrate[2];
     ble_parm_t ble_parm;
+	uint8_t dis_reason;
 }ble_state_t;
 
 typedef struct 
@@ -180,6 +181,8 @@ int8_t get_ble_rssi(void);
 void set_ble_pincode(uint8_t len, uint8_t *pincode);
 uint8_t get_ble_pincode(uint8_t *pincode);
 void user_remove_bond(void);
+void set_ble_erroinfo(uint8_t reason);
+uint8_t get_ble_errorinfo(void);
 
 #if !USB_DRIVER
 void set_ble_auto_connect(uint8_t flag);//, uint8_t *mac

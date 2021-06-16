@@ -453,12 +453,13 @@ static void mac_cmd(char *buf, int len, int argc, char **argv)
             goto EXIT;
         }
         user_info_need_save();
+		aos_cli_printf("\r\nOK\r\n");
     }
     else
     {      
         goto EXIT;
     }
-    aos_cli_printf("\r\nOK\r\n");
+    
 	return;
 EXIT:
     aos_cli_printf("\r\nERROR\r\n");
@@ -490,8 +491,9 @@ static void power_cmd(char *buf, int len, int argc, char **argv)
         {
             goto EXIT;
         }
+		aos_cli_printf("\r\nOK\r\n");
     }
-    aos_cli_printf("\r\nOK\r\n");
+    
 	return;
 EXIT:
     aos_cli_printf("\r\nERROR\r\n");    
@@ -585,7 +587,7 @@ static void auto_parm_cmd(char *buf, int len, int argc, char **argv)
         duration_time = atoi(argv[2]);
         set_auto_connect_parm(bdaddr.addr.addr, duration_time);//set_connect_start(bdaddr);
         user_info_need_save();
-        aos_cli_printf("\r\n+GATTSTAT=%d,2\r\n",free_channel_search());
+        aos_cli_printf("\r\n+GATTSTAT=%d,2\r\nOK\r\n",free_channel_search());
     }
     else goto EXIT;
 	return;
@@ -606,7 +608,7 @@ static void connect(char *buf, int len, int argc, char **argv)
             bdaddr.addr.addr[0], bdaddr.addr.addr[1], bdaddr.addr.addr[2], bdaddr.addr.addr[3], bdaddr.addr.addr[4], bdaddr.addr.addr[5], bdaddr.addr_type);
     set_connect_start(bdaddr);
     
-    aos_cli_printf("\r\n+GATTSTAT=%d,2\r\n",free_channel_search());
+    aos_cli_printf("\r\n+GATTSTAT=%d,2\r\nOK\r\n",free_channel_search());
  
 	return;
 EXIT:
@@ -831,6 +833,16 @@ EXIT:
     aos_cli_printf("\r\nERROR\r\n");
 }
 
+static void error_info(char *buf, int len, int argc, char **argv)
+{
+	if(argc == 1)
+    {
+		aos_cli_printf("\r\n error info %02x",get_ble_errorinfo());
+    }
+    else
+        aos_cli_printf("\r\nERROR\r\n");      
+}
+
 const struct cli_command built_ins[BUILD_INS_NUM] = {
 	
     {"AT+HELP","     help",              help_cmd},
@@ -876,7 +888,9 @@ const struct cli_command built_ins[BUILD_INS_NUM] = {
     
     {"AT+BDBAUD","   get/set baudrate",  baud_cmd},
         
-    {"AT+ADVEN","    adv on/off",        adv_en},    
+    {"AT+ADVEN","    adv on/off",        adv_en}, 
+	
+	{"AT+ERROR","	error info",	error_info},
    
 };
 

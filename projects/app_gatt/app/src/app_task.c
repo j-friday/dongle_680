@@ -1373,6 +1373,7 @@ static int gapc_disconnect_ind_handler(ke_msg_id_t const msgid,
 {
     uint8_t conidx = KE_IDX_GET(dest_id);
     bk_printf("%s,reason:0x%x\r\n",__func__,param->reason);
+	set_ble_erroinfo(param->reason);
     // Go to the ready state
     ke_state_set(KE_BUILD_ID(TASK_APP, conidx), APPC_LINK_IDLE);
 

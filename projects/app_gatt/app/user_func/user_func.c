@@ -23,11 +23,11 @@
 static user_info_t user_info =
 {
 #if USB_DRIVER
-	{"\x11\x22\x33\x44\x55\x66", "beken_slave", 4, 6, "123456", "\xFF\xFF\xFF\xFF\xFF\xFF", 0, 600, 2048, 115200, 115200, 24, 0, 600},
+	{"\x11\x22\x33\x44\x55\x66", "beken_slave", 4, 6, "123456", "\xFF\xFF\xFF\xFF\xFF\xFF", 0, 600, 2048, 115200, 115200, 24, 0, 600, 0},
 #else
-    {"\x11\x22\x33\x44\x55\x66", "beken_master", 4, 6, "123456", "\xFF\xFF\xFF\xFF\xFF\xFF", 0, 600, 2048, 115200, 115200, 24, 0, 600},
+    {"\x11\x22\x33\x44\x55\x66", "beken_master", 4, 6, "123456", "\xFF\xFF\xFF\xFF\xFF\xFF", 0, 600, 2048, 115200, 115200, 24, 0, 600, 0},
 #endif
-    {"v01.00", "t20210610212009", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
+    {"v01.01", "t20210614170609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
     {0, 0xffff, 0, 100},
     #if !USB_DRIVER
     {0x500, 0x1000, 0x500, 0x1000, 1000, 256},
@@ -521,6 +521,16 @@ void set_ble_buf_size(uint16_t size)
 uint16_t get_ble_buf_size(void)
 {
     return user_info.ble_state.ble_buf_size;
+}
+
+void set_ble_erroinfo(uint8_t reason)
+{
+	user_info.ble_state.dis_reason = reason;
+}
+
+uint8_t get_ble_errorinfo(void)
+{
+	return user_info.ble_state.dis_reason;
 }
 
 enum appm_error set_ble_name(uint8_t len, uint8_t *name)
@@ -1113,6 +1123,14 @@ void adc_task(void)
                 if(ch_en & 0x01)
                 {                    
                     adc_value_buf[0] = adc_get_value(1, 1);
+					if(adc_value_buf[0] > 235 || adc_value_buf[0] < 200)
+					{
+						set_gpio_status(ADC1_ABNORMAL);
+					}
+					else
+					{
+						set_gpio_status(DEFAULT_STATUS);
+					}
                 }
                 if(ch_en & 0x02)
                 {        
