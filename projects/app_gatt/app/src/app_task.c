@@ -1109,12 +1109,12 @@ static int gapc_connection_req_ind_handler(ke_msg_id_t const msgid,
         // We are now in connected State
         ke_state_set(KE_BUILD_ID(TASK_APP,app_env.conidx), APPC_LINK_CONNECTED);
         #if !USB_DRIVER
-        set_gpio_status(CONNECT_SUCCESS);
+        set_gpio_status(CONNECT_STATUS_BIT, CONNECT_SUCCESS);
         #endif
         {
             uint8_t rsp_buff[20];
             uint8_t len;
-            len = sprintf((char *)rsp_buff,"\r\n+GATTSTAT=%d,3\r\n", app_env.conidx);
+            len = sprintf((char *)rsp_buff,"\r\n+GATTSTAT=%d,3\r\nOK\r\n", app_env.conidx);
             UART_SEND_AT(rsp_buff, len);
         }
         #if 1//(BLE_APP_SEC && !defined(BLE_APP_AM0))
@@ -1396,12 +1396,12 @@ static int gapc_disconnect_ind_handler(ke_msg_id_t const msgid,
     appm_update_adv_state(true);
     #endif //(!BLE_APP_HID)
     #if !USB_DRIVER
-    set_gpio_status(CONNECT_ABNORMAL);
+    set_gpio_status(CONNECT_STATUS_BIT, CONNECT_ABNORMAL);
     #endif
     {
         uint8_t rsp_buff[20];
         uint8_t len;
-        len = sprintf((char *)rsp_buff,"\r\n+GATTSTAT=%d,0\r\n", conidx);
+        len = sprintf((char *)rsp_buff,"\r\n+GATTSTAT=%d,0\r\nOK\r\n", conidx);
         UART_SEND_AT(rsp_buff, len);
     }
     if(dmo_channel == conidx)dmo_channel = 0xFF;
@@ -1662,8 +1662,12 @@ static int app_gattc_event_ind_handler(ke_msg_id_t const msgid,
     #if !USB_DRIVER
     if(memcmp("vaux_detech_value:1", param->value, 19) == 0)
     {
-        set_gpio_status(ADAPTER_IN);
+        set_gpio_status(ADAPTER_STATUS_BIT, ADAPTER_IN);
     }
+	else if(memcmp("vaux_detech_value:0", param->value, 19) == 0)
+	{
+		set_gpio_status(ADAPTER_STATUS_BIT, ADAPTER_OUT);
+	}
     #endif
    return (KE_MSG_CONSUMED);  
 }

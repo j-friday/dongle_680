@@ -27,7 +27,7 @@ static user_info_t user_info =
 #else
     {"\x11\x22\x33\x44\x55\x66", "beken_master", 4, 6, "123456", "\xFF\xFF\xFF\xFF\xFF\xFF", 0, 600, 2048, 115200, 115200, 24, 0, 600, 0},
 #endif
-    {"v01.01", "t20210614170609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
+    {"v01.02", "t20210616170609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
     {0, 0xffff, 0, 100},
     #if !USB_DRIVER
     {0x500, 0x1000, 0x500, 0x1000, 1000, 256},
@@ -1125,11 +1125,11 @@ void adc_task(void)
                     adc_value_buf[0] = adc_get_value(1, 1);
 					if(adc_value_buf[0] > 235 || adc_value_buf[0] < 200)
 					{
-						set_gpio_status(ADC1_ABNORMAL);
+						set_gpio_status(ADC1_STATUS_BIT, 1);
 					}
 					else
 					{
-						set_gpio_status(DEFAULT_STATUS);
+						set_gpio_status(ADC1_STATUS_BIT, 0);
 					}
                 }
                 if(ch_en & 0x02)
@@ -1148,9 +1148,16 @@ void adc_task(void)
     }    
 }
 
-void set_gpio_status(uint8_t status)
+void set_gpio_status(uint8_t mode, uint8_t status)
 {
-    gpio_status_value = status;
+	if(status)
+	{	
+		gpio_status_value |= (0x1 << mode);
+	}
+	else
+	{
+		gpio_status_value &= ~(0x1 << mode);
+	}
 }
 
 void gpio_status_display(uint8_t status)
@@ -1160,6 +1167,17 @@ void gpio_status_display(uint8_t status)
     gpio_set(STA_PIN3, (status >> 2) & 0x01);
 }
 
+void set_adc_status(uint8_t status)
+{
+	if(status)
+	{
+		gpio_set(STA_PIN1, 0x01);
+	}
+	else
+	{
+		gpio_set(STA_PIN1, 0x00);
+	}
+}
 #endif
 
 void gpio_task(void)

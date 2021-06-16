@@ -25,12 +25,16 @@
 #define STA_PIN2 0x11    //output default:0
 #define STA_PIN3 0x33    //output default:0
 
-#define DEFAULT_STATUS   0x00
-#define ADC1_ABNORMAL    0x01
-#define ADC2_ABNORMAL    0x02
-#define CONNECT_SUCCESS  0x04
-#define CONNECT_ABNORMAL 0x05
-#define ADAPTER_IN       0x06
+#define ADC1_STATUS_BIT  	0x02
+#define CONNECT_STATUS_BIT  0x01
+#define ADAPTER_STATUS_BIT  0x02
+#define DEFAULT_STATUS   	0x00
+#define ADC1_ABNORMAL    	0x01
+#define ADC2_ABNORMAL    	0x01
+#define CONNECT_SUCCESS  	0x00
+#define CONNECT_ABNORMAL 	0x01
+#define ADAPTER_IN       	0x01
+#define ADAPTER_OUT			0x00
 
 #define ADV_REPORT_DEV_NUM    20
 #endif
@@ -207,7 +211,8 @@ uint8_t app_send_at_cmd(uint8_t device_id,uint16_t packet_len,uint8_t* packet);/
 uint8_t app_send_ble_data(uint8_t device_id,uint16_t packet_len,uint8_t* packet);
 void app_send_keyboad_data(void);
 void adc_task(void);
-void set_gpio_status(uint8_t status);
+void set_gpio_status(uint8_t mode, uint8_t status);
 void gpio_task(void);
 
+void set_adc_status(uint8_t status);
 #endif
