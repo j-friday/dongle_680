@@ -228,6 +228,10 @@ void appm_init_fsm_next(void)
     bk_printf("end init_state:%x\r\n",app_env.init_state);
 }
 
+uint8_t appm_get_init_state(void)
+{
+	return app_env.init_state;
+}
 
 void appm_update_init_state(bool start)
 {
@@ -235,6 +239,18 @@ void appm_update_init_state(bool start)
 
     // Start or stop advertising
     appm_init_fsm_next();
+
+#if 0
+	if(appm_get_init_state() != APP_INIT_STATE_CONECTTING)
+	{
+		if(start == true)
+			appm_init_fsm_next();
+	}
+	else if(!start)
+	{
+		appm_init_fsm_next();
+	}
+#endif
 }
 
 

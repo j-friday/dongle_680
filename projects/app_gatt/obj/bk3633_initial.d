@@ -1,9 +1,0 @@
-.\obj\bk3633_initial.o: ..\..\Src\system\bk3633_initial.c
-.\obj\bk3633_initial.o: ..\..\Src\system\../header/BK3633_RegList.h
-.\obj\bk3633_initial.o: ..\..\Src\system\../header/BK3633_Config.h
-.\obj\bk3633_initial.o: ..\..\Src\system\../header/BK_HCI_Protocol.h
-.\obj\bk3633_initial.o: ..\..\src\driver\uart2\uart2.h
-.\obj\bk3633_initial.o: d:\workspace\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
-.\obj\bk3633_initial.o: d:\workspace\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-.\obj\bk3633_initial.o: .\config\user_config.h
-.\obj\bk3633_initial.o: d:\workspace\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

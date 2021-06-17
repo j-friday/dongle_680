@@ -1,9 +1,0 @@
-.\obj\fcc0s_task.o: ..\..\Src\profiles\FCC0_128\src\fcc0s_task.c
-.\obj\fcc0s_task.o: .\config\rwip_config.h
-.\obj\fcc0s_task.o: ..\..\Src\header\bk3633_config.h
-.\obj\fcc0s_task.o: ..\..\Src\header\BK3633_RegList.h
-.\obj\fcc0s_task.o: ..\..\Src\ip\ble\ll\api\rwble_config.h
-.\obj\fcc0s_task.o: ..\..\Src\ip\ble\hl\inc\rwble_hl_config.h
-.\obj\fcc0s_task.o: .\config\rwip_config.h
-.\obj\fcc0s_task.o: ..\..\Src\ip\ble\hl\api\rwble_hl_error.h
-.\obj\fcc0s_task.o: .\config\rwprf_config.h

@@ -628,7 +628,8 @@ uint8_t get_ble_power(void)
 extern int8_t lld_con_rssi_get(uint8_t link_id);
 int8_t get_ble_rssi(void)
 {
-    return lld_con_rssi_get(0) + (llm_rx_path_comp_get()/10);    
+    //return lld_con_rssi_get(0) + (llm_rx_path_comp_get()/10); 
+	return get_rf_rssi();
 }
 
 void set_ble_pincode(uint8_t len, uint8_t *pincode)

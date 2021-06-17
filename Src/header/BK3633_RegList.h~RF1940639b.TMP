@@ -6118,10 +6118,6 @@
 #define bitXVR_Reg0x13_pre_dc_o                                 0xFFF
 #define get_XVR_Reg0x13_pre_dc_o                                (addXVR_Reg0x13 & 0xFFF)
 
-#define posXVR_Reg0x13_rssi_ind_o                               24
-#define bitXVR_Reg0x13_rssi_ind_o                               0xff000000
-#define get_XVR_Reg0x13_rssi_ind_o                              ((addXVR_Reg0x13 & 0xff000000) >> 24)
-
 //addXVR_Reg0x14
 #define addXVR_Reg0x14                                          *((volatile unsigned long *) (0x00806E00+0x14*4))
 

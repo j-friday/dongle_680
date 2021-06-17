@@ -1132,3 +1132,11 @@ uint8_t rf_power_get(void)
 {
     return rf_power_leave;
 }
+
+int8_t get_rf_rssi(void)
+{
+	int8_t rssi_data = 0;
+	rssi_data = rf_rssi_convert(get_XVR_Reg0x13_rssi_ind_o);
+	
+	return rssi_data;
+}

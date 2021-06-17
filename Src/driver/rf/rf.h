@@ -55,6 +55,7 @@ void  xvr_reg_initial_24(void);
 
 void rf_power_set(uint8_t leave);
 uint8_t rf_power_get(void);
+int8_t get_rf_rssi(void);
 /// @} RF
 
 #endif // RF_H_

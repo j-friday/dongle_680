@@ -413,12 +413,14 @@ static void name_cmd(char *buf, int len, int argc, char **argv)
         }   
         
         user_info_need_save();
+		aos_cli_printf("\r\nOK\r\n");
     }
 	else
     {
-        get_ble_name(name);        
+        get_ble_name(name);
+		aos_cli_printf("\r\n+NAME=%s\r\n", name);	
     }
-    aos_cli_printf("\r\n+NAME=%s\r\nOK\r\n", name);	
+    //aos_cli_printf("\r\n+NAME=%s\r\nOK\r\n", name);	
 	return;
     
 EXIT:
