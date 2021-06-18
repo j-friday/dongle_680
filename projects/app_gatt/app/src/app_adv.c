@@ -309,6 +309,8 @@ void appm_delete_advertising(void)
     p_cmd->actv_idx = app_env.adv_actv_idx;
     // Send the message
     ke_msg_send(p_cmd);
+    
+    app_env.adv_state = APP_ADV_STATE_DELETEING;
 
     // Keep the current operation
     // And the next expected operation code for the command completed event
@@ -429,8 +431,15 @@ void appm_adv_fsm_next(void)
         case (APP_ADV_STATE_STOPPING)://8
         {
                   
-            // Go created state
-            app_env.adv_state = APP_ADV_STATE_CREATED;
+            // Go delete state
+            appm_delete_advertising();
+
+        } break;
+        
+        case (APP_ADV_STATE_DELETEING)://
+        {
+        
+            app_env.adv_state = APP_ADV_STATE_IDLE;
         } break;
 
 

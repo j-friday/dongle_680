@@ -16,6 +16,7 @@
 #include "app_adv.h"
 #include "wdt.h"
 #include "user_func.h"
+#include "app_init.h"
 
 #if CLI_CONSOLE
 #include "cli.h"
@@ -580,10 +581,10 @@ static void auto_parm_cmd(char *buf, int len, int argc, char **argv)
                 bdaddr.addr.addr[1], bdaddr.addr.addr[0], duration_time);
     }
     else if ((argc == 3) && (strlen(argv[1]) == 12))
-    {    
+    {   
         hexstr2bin(argv[1], bdaddr.addr.addr, GAP_BD_ADDR_LEN, 0);
         reverse((uint8_t *)bdaddr.addr.addr, 6);  
-        bdaddr.addr_type = (bdaddr.addr.addr[5] & 0xC0) ? ADDR_RAND : ADDR_PUBLIC;
+        bdaddr.addr_type = ((bdaddr.addr.addr[5] & 0xC0) == 0xC0) ? ADDR_RAND : ADDR_PUBLIC;
         bk_printf("con address: %02X%02X%02X%02X%02X%02X addr_type%d\r\n",
                 bdaddr.addr.addr[0], bdaddr.addr.addr[1], bdaddr.addr.addr[2], bdaddr.addr.addr[3], bdaddr.addr.addr[4], bdaddr.addr.addr[5], bdaddr.addr_type);
         duration_time = atoi(argv[2]);
@@ -605,9 +606,9 @@ static void connect(char *buf, int len, int argc, char **argv)
     
     hexstr2bin(argv[1], bdaddr.addr.addr, GAP_BD_ADDR_LEN, 0);
     reverse((uint8_t *)bdaddr.addr.addr, 6);  
-	bdaddr.addr_type = (bdaddr.addr.addr[5] & 0xC0) ? ADDR_RAND : ADDR_PUBLIC;
-    bk_printf("con address: %02x-%02x-%02x-%02x-%02x-%02x addr_type%d\r\n",
-            bdaddr.addr.addr[0], bdaddr.addr.addr[1], bdaddr.addr.addr[2], bdaddr.addr.addr[3], bdaddr.addr.addr[4], bdaddr.addr.addr[5], bdaddr.addr_type);
+	bdaddr.addr_type = ((bdaddr.addr.addr[5] & 0xC0) == 0xC0) ? ADDR_RAND : ADDR_PUBLIC;
+    bk_printf("con address: %02x-%02x-%02x-%02x-%02x-%02x addr_type%02x:%d\r\n",
+            bdaddr.addr.addr[0], bdaddr.addr.addr[1], bdaddr.addr.addr[2], bdaddr.addr.addr[3], bdaddr.addr.addr[4], bdaddr.addr.addr[5], bdaddr.addr.addr[5], bdaddr.addr_type);
     set_connect_start(bdaddr);
     
     aos_cli_printf("\r\n+GATTSTAT=%d,2\r\nOK\r\n",free_channel_search());
@@ -615,6 +616,19 @@ static void connect(char *buf, int len, int argc, char **argv)
 	return;
 EXIT:
     aos_cli_printf("\r\nERROR\r\n");
+}
+
+static void stop_connect(char *buf, int len, int argc, char **argv)
+{
+    if(argc == 1)
+    {
+        set_stop_connect();
+        aos_cli_printf("\r\nOK\r\n");
+    }
+    else
+    {
+        aos_cli_printf("\r\nERROR\r\n");
+    }
 }
 #include "ke_timer.h"
 static void scan_cmd(char *buf, int len, int argc, char **argv)
@@ -882,6 +896,7 @@ const struct cli_command built_ins[BUILD_INS_NUM] = {
     {"AT+AUTOCONN"," get/set auto conn", auto_conn_cmd},
     {"AT+AUTOPARM"," get/set auto parm", auto_parm_cmd},
     {"AT+CONN","     connect device",    connect},
+    {"AT+STOPCONN"," stop connect device",stop_connect},
     {"AT+SCAN","     scan device",       scan_cmd},
 #endif    
     {"AT+DISC","     disconnect device", disconn_cmd},

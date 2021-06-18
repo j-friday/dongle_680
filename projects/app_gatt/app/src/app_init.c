@@ -134,7 +134,7 @@ uint8_t appm_start_connecting(struct gap_bdaddr bdaddr)
         ke_msg_send(p_cmd);
 
         // Keep the current operation
-        app_env.init_state = APP_INIT_STATE_CONECTTING;
+        app_env.init_state = APP_INIT_STATE_WAIT_CONECTTING;
         // And the next expected operation code for the command completed event
         app_env.init_op = GAPM_START_ACTIVITY;
     }
@@ -145,7 +145,7 @@ uint8_t appm_stop_connencting(void)
 {
     bk_printf("func %s\r\n",__func__);
     uint8_t ret = APPM_ERROR_NO_ERROR;
-    if (app_env.init_state == APP_INIT_STATE_IDLE)
+    if (app_env.init_state == APP_INIT_STATE_CONECTTING)
     {
         // Prepare the GAPM_ACTIVITY_STOP_CMD message
         struct gapm_activity_stop_cmd *cmd = KE_MSG_ALLOC(GAPM_ACTIVITY_STOP_CMD,
@@ -201,11 +201,15 @@ void appm_init_fsm_next(void)
             // Start init activity
             appm_start_connecting(g_bdaddr);
         } break;
-
+        case (APP_INIT_STATE_WAIT_CONECTTING):       
+        {
+            
+            app_env.init_state = APP_INIT_STATE_CONECTTING;
+        } break;
         case (APP_INIT_STATE_CONECTTING):
         {
             // Go to started state
-            app_env.init_state = APP_INIT_STATE_CONECTED;
+            app_env.init_state = APP_INIT_STATE_CREATED;
         } break;
 
         case (APP_INIT_STATE_CONECTED):
@@ -238,19 +242,12 @@ void appm_update_init_state(bool start)
     // TODO [LT] - Check current advertising state
 
     // Start or stop advertising
-    appm_init_fsm_next();
-
-#if 0
-	if(appm_get_init_state() != APP_INIT_STATE_CONECTTING)
-	{
-		if(start == true)
-			appm_init_fsm_next();
-	}
-	else if(!start)
-	{
-		appm_init_fsm_next();
-	}
-#endif
+    //appm_init_fsm_next();
+    if(appm_get_init_state() != APP_INIT_STATE_CONECTTING)
+    {
+        if(start == true)appm_init_fsm_next();
+    }
+    else if(!start)appm_init_fsm_next();
 }
 
 

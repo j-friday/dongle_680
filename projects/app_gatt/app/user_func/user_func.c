@@ -27,7 +27,7 @@ static user_info_t user_info =
 #else
     {"\x11\x22\x33\x44\x55\x66", "beken_master", 4, 6, "123456", "\xFF\xFF\xFF\xFF\xFF\xFF", 0, 600, 2048, 115200, 115200, 24, 0, 600, 0},
 #endif
-    {"v01.02", "t20210616170609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
+    {"v01.03", "t20210616180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
     {0, 0xffff, 0, 100},
     #if !USB_DRIVER
     {0x500, 0x1000, 0x500, 0x1000, 1000, 256},
@@ -665,7 +665,7 @@ void set_ble_auto_connect(uint8_t flag)
     {
         struct gap_bdaddr bdaddr;
         memcpy(bdaddr.addr.addr, user_info.ble_state.auto_conn_mac, 6);
-        bdaddr.addr_type = (bdaddr.addr.addr[5] & 0xC0) ? ADDR_RAND : ADDR_PUBLIC;
+        bdaddr.addr_type = ((bdaddr.addr.addr[5] & 0xC0) == 0xC0) ? ADDR_RAND : ADDR_PUBLIC;
         set_connect_start(bdaddr);
         ke_timer_set(APP_BLE_AUTO_CONN_HANDLER, TASK_APP, user_info.ble_state.auto_conn_time);
     }
@@ -693,6 +693,13 @@ void set_connect_start(struct gap_bdaddr bdaddr)
     appm_set_connect_dev_addr(bdaddr);
     appm_update_init_state(1);
 }
+
+void set_stop_connect(void)
+{
+    appm_stop_connencting();
+    appm_update_init_state(false);    
+}
+
 #include "app_scan.h"
 extern struct appm_env_tag appm_env;
 bool appm_scan_adv_repor(void)
@@ -737,8 +744,10 @@ bool appm_scan_adv_repor(void)
                 {
                     aos_cli_printf(",%s",str_buf);
                     memset(str_buf,0,31);                                       
-                } 
+                }
+                else aos_cli_printf(", ");               
             }
+            aos_cli_printf(",%d",appm_env.scan_filter[i].rssi);
             aos_cli_printf("\r\n");
         }
         aos_cli_printf("}\r\n");
@@ -783,7 +792,8 @@ uint8_t appm_add_adv_report_to_filter(struct gapm_ext_adv_report_ind *param)///(
         if (cursor < ADV_REPORT_DEV_NUM)
         {
             memcpy(appm_env.scan_filter[cursor].rsp_data, param->data, param->length);
-            appm_env.scan_filter[cursor].rsp_data_len = param->length;        
+            appm_env.scan_filter[cursor].rsp_data_len = param->length;  
+            appm_env.scan_filter[cursor].rssi = param->rssi;
         }
         else
         {
@@ -810,6 +820,7 @@ uint8_t appm_add_adv_report_to_filter(struct gapm_ext_adv_report_ind *param)///(
             memcpy(appm_env.scan_filter[cursor].adv_data, param->data, param->length);
             appm_env.scan_filter[cursor].adv_data_len = param->length;
             appm_env.scan_filter[cursor].adv_addr_type = param->trans_addr.addr_type;
+            appm_env.scan_filter[cursor].rssi = param->rssi;
         }        
     }	
     //cursor_max = MAX(cursor_max, cursor);

@@ -194,6 +194,7 @@ uint8_t get_ble_auto_connect(void);
 void set_auto_connect_parm(uint8_t *mac, uint32_t duration_time);
 uint32_t get_auto_connect_parm(uint8_t *mac);    
 void set_connect_start(struct gap_bdaddr bdaddr);
+void set_stop_connect(void);
 bool appm_scan_adv_repor(void);
 void appm_adv_report_filter_free(void);
 uint8_t appm_add_adv_report_to_filter(struct gapm_ext_adv_report_ind *param);///(struct adv_report const *param)

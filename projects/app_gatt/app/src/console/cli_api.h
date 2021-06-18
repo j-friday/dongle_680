@@ -11,7 +11,7 @@
 #include "rwip_config.h"
 
 #if !USB_DRIVER
-#define BUILD_INS_NUM 31	//30
+#define BUILD_INS_NUM 32	//30
 #else
 #define BUILD_INS_NUM 26	//25
 #endif

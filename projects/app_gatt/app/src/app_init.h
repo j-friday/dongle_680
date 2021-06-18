@@ -39,6 +39,8 @@ enum app_init_state
     APP_INIT_STATE_CREATING,
    /// Iint activity created
     APP_INIT_STATE_CREATED,
+    /// WAIT Start Iint activity
+    APP_INIT_STATE_WAIT_CONECTTING,
     /// Starting Iint activity
     APP_INIT_STATE_CONECTTING,
     /// Iint activity conected
@@ -68,6 +70,7 @@ void uart_data_pro(void);
 
 void appm_init_fsm_next(void);
 void appm_update_init_state(bool start);
+uint8_t appm_get_init_state(void);
 /**
  ****************************************************************************************
  * @brief Send a disconnection request

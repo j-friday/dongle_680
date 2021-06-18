@@ -362,7 +362,7 @@ static int gapc_bond_req_ind_handler(ke_msg_id_t const msgid,
                 ASSERT_ERR(0);
             }
             // load device address
-            cfm->data.irk.addr.addr_type = (cfm->data.irk.addr.addr.addr[5] & 0xC0) ? ADDR_RAND : ADDR_PUBLIC;
+            cfm->data.irk.addr.addr_type = ((cfm->data.irk.addr.addr.addr[5] & 0xC0) == 0xC0) ? ADDR_RAND : ADDR_PUBLIC;
         } break;
 
 

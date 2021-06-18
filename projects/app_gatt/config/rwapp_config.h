@@ -34,8 +34,8 @@
  ****************************************************************************************
  */
  
-#define CFG_APP_DIS
-#define CFG_APP_BATT
+//#define CFG_APP_DIS
+//#define CFG_APP_BATT
 #define CFG_APP_SEC
 
 #define CFG_APP_FEE0S

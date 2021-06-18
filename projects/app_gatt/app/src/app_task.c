@@ -488,7 +488,17 @@ static int gapm_activity_stopped_ind_handler(ke_msg_id_t const msgid,
         // Perform next operation
         appm_adv_fsm_next();
 
-    }else if((app_env.scan_state == APP_SCAN_STATE_STARTED) && (p_param->actv_type == GAPM_ACTV_TYPE_SCAN))
+    }
+    else if ((app_env.adv_state == APP_ADV_STATE_WAITING_DELETE) && (p_param->actv_type == GAPM_ACTV_TYPE_ADV))
+    {
+        // Act as if activity had been stopped by the application
+       // app_env.adv_state = APP_ADV_STATE_DELETEING;
+
+        // Perform next operation
+        appm_adv_fsm_next();
+
+    }
+	else if((app_env.scan_state == APP_SCAN_STATE_STARTED) && (p_param->actv_type == GAPM_ACTV_TYPE_SCAN))
     {
         {
             // Act as if activity had been stopped by the application
@@ -499,12 +509,10 @@ static int gapm_activity_stopped_ind_handler(ke_msg_id_t const msgid,
 
         
     }
-    else if((app_env.init_state == APP_INIT_STATE_CONECTED) && (p_param->actv_type == GAPM_ACTV_TYPE_INIT))
+    else if(((app_env.init_state == APP_INIT_STATE_STOPPING) ||(app_env.init_state == APP_INIT_STATE_CONECTTING) )&& (p_param->actv_type == GAPM_ACTV_TYPE_INIT))
     {     
         {
-            // Act as if activity had been stopped by the application
-            app_env.init_state = APP_INIT_STATE_STOPPING;
-
+            // Act as if activity had been stopped by the application            
             // Perform next operation
             appm_init_fsm_next();
             #if !USB_DRIVER                    
@@ -539,7 +547,15 @@ static int gapm_profile_added_ind_handler(ke_msg_id_t const msgid,
 { 
     // Current State
     ke_state_t state = ke_state_get(dest_id);
+    uint8_t conidx = KE_IDX_GET(dest_id);
     bk_printf("%s prf_task_id:%x,prf_task_nb:%d,start_hdl:%d\r\n",__func__,param->prf_task_id, param->prf_task_nb,param->start_hdl);
+    if(param->role == PRF_CLIENT)
+    {
+        if(sdp_add_profiles_num_get(conidx) == 0)
+        {
+            sdp_enable_all_server_ntf_ind(conidx,1);
+        }
+    }
     if (state == APPM_CREATE_DB)
     {
         switch (param->prf_task_id)
@@ -638,7 +654,7 @@ static int gapm_cmp_evt_handler(ke_msg_id_t const msgid,
                 if (rwip_param.get(PARAM_ID_BD_ADDRESS, &len, &cmd->addr.addr[0]) == PARAM_OK)
                 {
                     // Check if address is a static random address
-                    if (cmd->addr.addr[5] & 0xC0)
+                    if ((cmd->addr.addr[5] & 0xC0) == 0xC0)
                     {
                         // Host privacy enabled by default
                         cmd->privacy_cfg |= GAPM_PRIV_CFG_PRIV_ADDR_BIT;
@@ -648,7 +664,7 @@ static int gapm_cmp_evt_handler(ke_msg_id_t const msgid,
                 else
                 {
                     memcpy(&cmd->addr.addr[0],&co_default_bdaddr.addr[0],BD_ADDR_LEN);
-                    if (cmd->addr.addr[5] & 0xC0)
+                    if ((cmd->addr.addr[5] & 0xC0) == 0xC0)
                     {
                         // Host privacy enabled by default
                         cmd->privacy_cfg |= GAPM_PRIV_CFG_PRIV_ADDR_BIT;
@@ -861,7 +877,7 @@ static int gapm_cmp_evt_handler(ke_msg_id_t const msgid,
                 }
                 #endif
                 #if (BLE_CENTRAL)
-                if(app_env.init_state == APP_INIT_STATE_CONECTTING)
+                if(app_env.init_state == APP_INIT_STATE_WAIT_CONECTTING)
                 {
                     appm_init_fsm_next(); 
                 }
@@ -887,6 +903,14 @@ static int gapm_cmp_evt_handler(ke_msg_id_t const msgid,
         }break;
         case (GAPM_DELETE_ACTIVITY)://0xA7
         {
+            if(param->status == GAP_ERR_NO_ERROR)
+            {
+                if(app_env.adv_state == APP_ADV_STATE_DELETEING)
+                {
+                     appm_adv_fsm_next(); 
+                
+                }            
+            }
         
         }break;
         

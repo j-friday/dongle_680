@@ -47,7 +47,12 @@ enum app_adv_state
     /// Advertising activity started
     APP_ADV_STATE_STARTED,
     /// Stopping advertising activity
-    APP_ADV_STATE_STOPPING,
+    APP_ADV_STATE_STOPPING,    
+    /// WAIT Deleteing advertising activity
+    APP_ADV_STATE_WAITING_DELETE,
+    
+    /// Deleteing advertising activity
+    APP_ADV_STATE_DELETEING,
 
 };
 /**
