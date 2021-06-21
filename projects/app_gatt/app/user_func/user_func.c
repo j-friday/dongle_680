@@ -25,9 +25,9 @@ static user_info_t user_info =
 #if USB_DRIVER
 	{"\x11\x22\x33\x44\x55\x66", "beken_slave", 4, 6, "123456", "\xFF\xFF\xFF\xFF\xFF\xFF", 0, 600, 2048, 115200, 115200, 24, 0, 600, 0},
 #else
-    {"\x11\x22\x33\x44\x55\x66", "beken_master", 4, 6, "123456", "\xFF\xFF\xFF\xFF\xFF\xFF", 0, 600, 2048, 115200, 115200, 24, 0, 600, 0},
+    {"\x11\x22\x33\x44\x55\x66", "beken_master", 4, 6, "123456", "\xBF\x06\x39\x69\x23\x0C", 1, 600, 2048, 115200, 115200, 24, 0, 600, 0},
 #endif
-    {"v01.03", "t20210616180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
+    {"v01.04", "t20210621180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
     {0, 0xffff, 0, 100},
     #if !USB_DRIVER
     {0x500, 0x1000, 0x500, 0x1000, 1000, 256},
@@ -54,7 +54,7 @@ uint8_t gpio_status_value = DEFAULT_STATUS;
 //bit7:ADC EN 
 //bit0:CH1 EN 
 //bit1:CH2 EN
-static uint8_t ADC_EN_FLAG = 0;
+static uint8_t ADC_EN_FLAG = 0x83;
 static uint16_t adc_value_buf[2];
 #endif
 static void user_gpio_init(void)
@@ -174,7 +174,12 @@ void user_task(void)
     //adc task
     adc_task();
     #endif
-    
+	#if !USB_DRIVER	
+	if(user_info.ble_state.auto_conn_en && (ke_state_get(KE_BUILD_ID(TASK_APP,dmo_channel)) != APPC_SERVICE_CONNECTED))
+	{
+		set_ble_auto_connect(1);
+	}
+	#endif    
     //
     app_wdt_feed();
     //user info save
@@ -430,7 +435,7 @@ void set_adc_func(uint8_t flag)///1: open 0: close
     {
         #if(ADC_DRIVER) 
         adc_init(1, 1);
-        //adc_init(2, 1);
+        adc_init(2, 1);
         #endif
     }
 }
@@ -1046,7 +1051,7 @@ void app_send_keyboad_data(void)
     if(get_data_mode() != 1) return;
     if(ble_rx_data_len > 0)
     {
-        if(cable_sel_v == 1)
+        if(cable_sel_v == 0)
         {
             if((usb_send_totail < ble_rx_data_len) && (check_b_isTRxing() == FALSE))//for(uint16_t i = 0; i< ble_rx_data_len; i++)
             {
