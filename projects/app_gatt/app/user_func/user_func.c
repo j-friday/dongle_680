@@ -27,7 +27,7 @@ static user_info_t user_info =
 #else
     {"\x11\x22\x33\x44\x55\x66", "beken_master", 4, 6, "123456", "\xBF\x06\x39\x69\x23\x0C", 1, 600, 2048, 115200, 115200, 24, 0, 600, 0},
 #endif
-    {"v01.04", "t20210621180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
+    {"v01.05", "t20210623180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
     {0, 0xffff, 0, 100},
     #if !USB_DRIVER
     {0x500, 0x1000, 0x500, 0x1000, 1000, 256},
@@ -173,13 +173,9 @@ void user_task(void)
     #else
     //adc task
     adc_task();
+	auto_conn_task();
     #endif
-	#if !USB_DRIVER	
-	if(user_info.ble_state.auto_conn_en && (ke_state_get(KE_BUILD_ID(TASK_APP,dmo_channel)) != APPC_SERVICE_CONNECTED))
-	{
-		set_ble_auto_connect(1);
-	}
-	#endif    
+  
     //
     app_wdt_feed();
     //user info save
@@ -676,6 +672,11 @@ void set_ble_auto_connect(uint8_t flag)
     }
 }
 
+void set_ble_auto_connect_status(uint8_t flag)
+{
+	user_info.ble_state.auto_conn_en = flag;
+}
+
 uint8_t get_ble_auto_connect(void)
 {
     return user_info.ble_state.auto_conn_en;
@@ -691,6 +692,11 @@ uint32_t get_auto_connect_parm(uint8_t *mac)
 {
     memcpy(mac, user_info.ble_state.auto_conn_mac, 6);
     return user_info.ble_state.auto_conn_time;
+}
+
+void set_connect_mac(uint8_t *mac)
+{
+	memcpy(user_info.ble_state.auto_conn_mac, mac, 6);
 }
 
 void set_connect_start(struct gap_bdaddr bdaddr)
@@ -1116,6 +1122,24 @@ void app_send_keyboad_data(void)
 }
 
 #else
+void auto_conn_task(void)
+{
+	static rwip_time_t current_time;
+	static rwip_time_t pre_time = {0, 0};
+
+	if(get_ble_auto_connect())
+	{
+		current_time = rwip_time_get();
+		if((current_time.hs -  pre_time.hs) > (user_info.ble_state.auto_conn_time * 10 * 1000 + 3000000) / HALF_SLOT_SIZE * 2)
+		{
+			if(ke_state_get(KE_BUILD_ID(TASK_APP,dmo_channel)) != APPC_SERVICE_CONNECTED)
+			{
+				set_ble_auto_connect(1);
+			}
+			pre_time = current_time;
+		}
+	}
+}
 
 void adc_task(void)
 {

@@ -1684,11 +1684,11 @@ static int app_gattc_event_ind_handler(ke_msg_id_t const msgid,
         bk_printf("%02x ",param->value[i]);
     }bk_printf("\r\n");
     #if !USB_DRIVER
-    if(memcmp("vaux_detech_value:1", param->value, 19) == 0)
+    if(memcmp("vaux_detech_value:0", param->value, 19) == 0)
     {
         set_gpio_status(ADAPTER_STATUS_BIT, ADAPTER_IN);
     }
-	else if(memcmp("vaux_detech_value:0", param->value, 19) == 0)
+	else if(memcmp("vaux_detech_value:1", param->value, 19) == 0)
 	{
 		set_gpio_status(ADAPTER_STATUS_BIT, ADAPTER_OUT);
 	}

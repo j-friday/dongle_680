@@ -617,7 +617,7 @@ void uart_ringbuf_clean(void)
     memset((uint8_t *)uart_tx_buf,0,TOTAL0_BUF_NUM);
     uart_rx_index = 0;
     uart_rx_buff_tailor = 0;
-    bk_printf("uart0_ringbuf_clean \r\n");
+    //bk_printf("uart0_ringbuf_clean \r\n");
 }
 
 int uart_printf_null(const char *fmt,...)

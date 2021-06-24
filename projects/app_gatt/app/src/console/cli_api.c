@@ -604,14 +604,27 @@ static void connect(char *buf, int len, int argc, char **argv)
     
     if ((argc != 2) || (strlen(argv[1]) != 12))goto EXIT;
     
+	set_ble_auto_connect_status(0);
+	
     hexstr2bin(argv[1], bdaddr.addr.addr, GAP_BD_ADDR_LEN, 0);
     reverse((uint8_t *)bdaddr.addr.addr, 6);  
 	bdaddr.addr_type = ((bdaddr.addr.addr[5] & 0xC0) == 0xC0) ? ADDR_RAND : ADDR_PUBLIC;
     bk_printf("con address: %02x-%02x-%02x-%02x-%02x-%02x addr_type%02x:%d\r\n",
             bdaddr.addr.addr[0], bdaddr.addr.addr[1], bdaddr.addr.addr[2], bdaddr.addr.addr[3], bdaddr.addr.addr[4], bdaddr.addr.addr[5], bdaddr.addr.addr[5], bdaddr.addr_type);
-    set_connect_start(bdaddr);
-    
-    aos_cli_printf("\r\n+GATTSTAT=%d,2\r\nOK\r\n",free_channel_search());
+    //set_connect_start(bdaddr);
+	set_connect_mac(bdaddr.addr.addr);
+	
+	set_stop_connect();
+	
+	if(ke_state_get(KE_BUILD_ID(TASK_APP,dmo_channel)) == APPC_SERVICE_CONNECTED)
+	{
+		appm_disconnect(dmo_channel);
+	}
+	set_ble_auto_connect_status(1);
+	
+	user_info_need_save();
+	
+    //aos_cli_printf("\r\n+GATTSTAT=%d,2\r\nOK\r\n",free_channel_search());
  
 	return;
 EXIT:

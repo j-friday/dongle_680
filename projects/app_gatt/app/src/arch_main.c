@@ -450,7 +450,8 @@ void rw_main(void)
     {
         // schedule all pending events
         rwip_schedule();
-        user_task();   
+        user_task(); 
+		
         // Checks for sleep have to be done with interrupt disabled
         GLOBAL_INT_DISABLE();
         #if (BLE_OADS_SERVER)

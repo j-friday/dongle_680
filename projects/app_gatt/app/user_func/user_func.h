@@ -214,6 +214,9 @@ void app_send_keyboad_data(void);
 void adc_task(void);
 void set_gpio_status(uint8_t mode, uint8_t status);
 void gpio_task(void);
+void auto_conn_task(void);
 
 void set_adc_status(uint8_t status);
+void set_connect_mac(uint8_t *mac);
+void set_ble_auto_connect_status(uint8_t flag);
 #endif
