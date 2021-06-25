@@ -158,6 +158,7 @@ uint16_t get_sleep_interval(void);
 
 uint8_t get_adc_en_status(void);
 void set_adc_func(uint8_t flag);
+void set_adc_enable(void);
 uint8_t get_adc_func(void);
 void set_adc_threshold(uint8_t ch, uint16_t *threshold);
 void get_adc_threshold(uint8_t ch, uint16_t *threshold);

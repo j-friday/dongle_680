@@ -433,6 +433,7 @@ void rw_main(void)
     #else
     #if(ADC_DRIVER) 
     adc_init(1, 1);
+	set_adc_enable();
     //adc_init(2, 1);
     #endif
     #endif

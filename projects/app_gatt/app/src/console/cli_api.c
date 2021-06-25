@@ -246,6 +246,8 @@ static void adc_en_cmd(char *buf, int len, int argc, char **argv)
             aos_cli_printf("\r\nOK\r\n");
         }
         else aos_cli_printf("\r\nERROR\r\n");
+		
+		set_adc_enable();
     }
     else
     {
