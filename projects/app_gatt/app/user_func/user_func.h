@@ -25,7 +25,7 @@
 #define STA_PIN2 0x11    //output default:0
 #define STA_PIN3 0x33    //output default:0
 
-#define ADC1_STATUS_BIT  	0x02
+#define ADC1_STATUS_BIT  	0x00
 #define CONNECT_STATUS_BIT  0x01
 #define ADAPTER_STATUS_BIT  0x02
 #define DEFAULT_STATUS   	0x00

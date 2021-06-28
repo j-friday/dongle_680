@@ -1138,7 +1138,7 @@ static int gapc_connection_req_ind_handler(ke_msg_id_t const msgid,
         {
             uint8_t rsp_buff[20];
             uint8_t len;
-            len = sprintf((char *)rsp_buff,"\r\n+GATTSTAT=%d,3\r\nOK\r\n", app_env.conidx);
+            len = sprintf((char *)rsp_buff,"\r\nOK\r\n");
             UART_SEND_AT(rsp_buff, len);
         }
         #if 1//(BLE_APP_SEC && !defined(BLE_APP_AM0))
@@ -1425,7 +1425,7 @@ static int gapc_disconnect_ind_handler(ke_msg_id_t const msgid,
     {
         uint8_t rsp_buff[20];
         uint8_t len;
-        len = sprintf((char *)rsp_buff,"\r\n+GATTSTAT=%d,0\r\nOK\r\n", conidx);
+        len = sprintf((char *)rsp_buff,"\r\nOK\r\n");
         UART_SEND_AT(rsp_buff, len);
     }
     if(dmo_channel == conidx)dmo_channel = 0xFF;
