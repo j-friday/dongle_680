@@ -27,7 +27,7 @@ static user_info_t user_info =
 #else
     {"\x11\x22\x33\x44\x55\x66", "beken_master", 4, 6, "123456", "\xBF\x06\x39\x69\x23\x0C", 1, 600, 2048, 115200, 115200, 24, 0, 600, 0},
 #endif
-    {"v01.07", "t20210628180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
+    {"v01.08", "t20210629180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
     {0, 0xffff, 0, 100},
     #if !USB_DRIVER
     {0x500, 0x1000, 0x500, 0x1000, 1000, 256},
@@ -1178,7 +1178,7 @@ void adc_task(void)
                 if(ch_en & 0x01)
                 {                    
                     adc_value_buf[0] = adc_get_value(1, 1);
-					if(adc_value_buf[0] > 235 || adc_value_buf[0] < 200)
+					if(adc_value_buf[0] < 183)
 					{
 						set_gpio_status(ADC1_STATUS_BIT, 1);
 					}
