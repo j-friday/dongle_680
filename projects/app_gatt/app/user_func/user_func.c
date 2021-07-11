@@ -23,11 +23,11 @@
 static user_info_t user_info =
 {
 #if USB_DRIVER
-	{"\x11\x22\x33\x44\x55\x66", "beken_slave", 4, 6, "123456", "\xFF\xFF\xFF\xFF\xFF\xFF", 0, 600, 2048, 115200, 115200, 24, 0, 600, 0},
+	{"\x11\x22\x33\x44\x55\x66", "beken_slave", 4, 6, "123456", "\xFF\xFF\xFF\xFF\xFF\xFF", 0, 300, 2048, 115200, 115200, 24, 0, 600, 0},
 #else
-    {"\x11\x22\x33\x44\x55\x66", "beken_master", 4, 6, "123456", "\xBF\x06\x39\x69\x23\x0C", 1, 600, 2048, 115200, 115200, 24, 0, 600, 0},
+    {"\x11\x22\x33\x44\x55\x66", "beken_master", 4, 6, "123456", "\xBF\x06\x39\x69\x23\x0C", 1, 300, 2048, 115200, 115200, 24, 0, 600, 0},
 #endif
-    {"v01.08", "t20210629180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
+    {"v01.10", "t20210711180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
     {0, 0xffff, 0, 100},
     #if !USB_DRIVER
     {0x500, 0x1000, 0x500, 0x1000, 1000, 256},
@@ -110,13 +110,14 @@ void erase_user_info(void)
     }
 }
 
-void save_user_info_to_flash(uint8_t *data, uint16_t len, uint32_t addr)
+//void save_user_info_to_flash(uint8_t *data, uint16_t len, uint32_t addr)
+void save_user_info_to_flash(void)
 {
     if(save_user_info_flag == 1)
     {
         save_user_info_flag = 0;
-        flash_erase(0, addr, 0x1000, NULL);
-        flash_write(0, addr, len, data, NULL);
+        flash_erase(0, USER_AT_CMD_SAVE_ADDR, 0x1000, NULL);
+        flash_write(0, USER_AT_CMD_SAVE_ADDR, sizeof(user_info_t), &user_info.ble_state.ble_mac[0], NULL);
     }
 }
 
@@ -179,7 +180,8 @@ void user_task(void)
     //
     app_wdt_feed();
     //user info save
-    save_user_info_to_flash(&user_info.ble_state.ble_mac[0], sizeof(user_info_t), USER_AT_CMD_SAVE_ADDR);
+    //save_user_info_to_flash(&user_info.ble_state.ble_mac[0], sizeof(user_info_t), USER_AT_CMD_SAVE_ADDR);
+	save_user_info_to_flash();
 }
 
 void reverse(uint8_t *src, uint8_t len)
@@ -1144,7 +1146,7 @@ void auto_conn_task(void)
 	if(get_ble_auto_connect())
 	{
 		current_time = rwip_time_get();
-		if((current_time.hs -  pre_time.hs) > (user_info.ble_state.auto_conn_time * 10 * 1000 + 3000000) / HALF_SLOT_SIZE * 2)
+		if((current_time.hs -  pre_time.hs) > (user_info.ble_state.auto_conn_time * 10 * 1000 + 1000000) / HALF_SLOT_SIZE * 2)
 		{
 			if(ke_state_get(KE_BUILD_ID(TASK_APP,dmo_channel)) != APPC_SERVICE_CONNECTED)
 			{
