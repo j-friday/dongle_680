@@ -31,8 +31,8 @@
 #define DEFAULT_STATUS   	0x00
 #define ADC1_ABNORMAL    	0x01
 #define ADC2_ABNORMAL    	0x01
-#define CONNECT_SUCCESS  	0x00
-#define CONNECT_ABNORMAL 	0x01
+#define CONNECT_SUCCESS  	0x01
+#define CONNECT_ABNORMAL 	0x00
 #define ADAPTER_IN       	0x01
 #define ADAPTER_OUT			0x00
 
@@ -220,4 +220,6 @@ void auto_conn_task(void);
 void set_adc_status(uint8_t status);
 void set_connect_mac(uint8_t *mac);
 void set_ble_auto_connect_status(uint8_t flag);
+//void save_user_info_to_flash(uint8_t *data, uint16_t len, uint32_t addr);
+void save_user_info_to_flash(void);
 #endif

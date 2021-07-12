@@ -565,7 +565,9 @@ static void auto_conn_cmd(char *buf, int len, int argc, char **argv)
         auto_en = atoi(argv[1]);
         if(auto_en < 2)
         {
-            set_ble_auto_connect(auto_en);
+            //set_ble_auto_connect(auto_en);
+			set_ble_auto_connect_status(auto_en);
+			user_info_need_save();
             aos_cli_printf("\r\nOK\r\n");
         }
         else aos_cli_printf("\r\nERROR\r\n");
@@ -616,19 +618,27 @@ static void connect(char *buf, int len, int argc, char **argv)
     //set_connect_start(bdaddr);
 	set_connect_mac(bdaddr.addr.addr);
 	
-	set_stop_connect();
+	//set_stop_connect();
 	
-	if(ke_state_get(KE_BUILD_ID(TASK_APP,dmo_channel)) == APPC_SERVICE_CONNECTED)
+	//if(ke_state_get(KE_BUILD_ID(TASK_APP,dmo_channel)) == APPC_SERVICE_CONNECTED)
 	{
-		appm_disconnect(dmo_channel);
+		//appm_disconnect(dmo_channel);
+		set_ble_auto_connect_status(1);
+		user_info_need_save();
+		save_user_info_to_flash();
+		
+		Delay_us(500);
+		soft_reset();
+		while(1)
+			;
 	}
-	set_ble_auto_connect_status(1);
+	//set_ble_auto_connect_status(1);
 	
-	user_info_need_save();
+	//user_info_need_save();
 	
     //aos_cli_printf("\r\n+GATTSTAT=%d,2\r\nOK\r\n",free_channel_search());
  
-	return;
+	//return;
 EXIT:
     aos_cli_printf("\r\nERROR\r\n");
 }
