@@ -568,6 +568,7 @@ static void auto_conn_cmd(char *buf, int len, int argc, char **argv)
             //set_ble_auto_connect(auto_en);
 			set_ble_auto_connect_status(auto_en);
 			user_info_need_save();
+			save_user_info_to_flash();
             aos_cli_printf("\r\nOK\r\n");
         }
         else aos_cli_printf("\r\nERROR\r\n");
