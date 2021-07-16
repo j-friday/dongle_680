@@ -27,7 +27,7 @@ static user_info_t user_info =
 #else
     {"\x11\x22\x33\x44\x55\x66", "beken_master", 4, 6, "123456", "\xBF\x06\x39\x69\x23\x0C", 1, 300, 2048, 115200, 115200, 24, 0, 600, 0},
 #endif
-    {"v01.12", "t20210714180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
+    {"v01.13", "t20210716180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
     {0, 0xffff, 0, 100},
     #if !USB_DRIVER
     {0x500, 0x1000, 0x500, 0x1000, 1000, 256},
@@ -1040,6 +1040,7 @@ EXIT:
 #include "driver_usb.h"
 struct rev_ntf_data notify_data;
 extern void test_usb_device(void);
+static uint8_t adapter_in_flag = 0;
 
 uint8_t hexvalue[94]=
 {
@@ -1066,6 +1067,16 @@ uint8_t keyvalue[47]=
     0x2D,0x2E,0x2F,0x30,0x31,0x33,0x34,0x36,0x37,0x38,0x35
 };
 //0-9,a-z,-=[]\;',./ keyvalue
+
+void set_adapter_in_flag(uint8_t flag)
+{
+	adapter_in_flag = flag;
+}
+
+uint8_t get_adapter_in_flag(void)
+{
+	return adapter_in_flag;
+}
 
 void app_send_keyboad_data(void)
 {
@@ -1242,12 +1253,15 @@ void gpio_task(void)
 #if USB_DRIVER
     static uint8_t vaux_detech_vback;
     vaux_detech_v = gpio_get_input(VAUX_DTH);
-    if(vaux_detech_vback != vaux_detech_v)
+    if((vaux_detech_vback != vaux_detech_v) || get_adapter_in_flag())
     {
         uint8_t str[20];
         vaux_detech_vback = vaux_detech_v;
         snprintf((char *)str, 20,"vaux_detech_value:%d", vaux_detech_v);
-        app_send_ble_data(0, 19, str);//通道需要注意，从机不能确认主机端是什么设备，需要想办法确定；
+        if(app_send_ble_data(0, 19, str) == APPM_ERROR_NO_ERROR) //通道需要注意，从机不能确认主机端是什么设备，需要想办法确定；
+		{
+			set_adapter_in_flag(0);
+		}
     }
     cable_sel_v = gpio_get_input(CABLE_SE);
 #else

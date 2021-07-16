@@ -222,4 +222,8 @@ void set_connect_mac(uint8_t *mac);
 void set_ble_auto_connect_status(uint8_t flag);
 //void save_user_info_to_flash(uint8_t *data, uint16_t len, uint32_t addr);
 void save_user_info_to_flash(void);
+#if USB_DRIVER
+void set_adapter_in_flag(uint8_t flag);
+uint8_t get_adapter_in_flag(void);
+#endif
 #endif

@@ -1778,6 +1778,9 @@ static int gattc_cmp_evt_handler(ke_msg_id_t const msgid,
     	ke_state_set(KE_BUILD_ID(TASK_APP,conidx),APPC_SERVICE_CONNECTED);
         bk_printf("\r\nAPPC_SERVICE_CONNECTED\r\n");
         sdp_enable_all_server_ntf_ind(conidx,1);
+		#if USB_DRIVER
+		set_adapter_in_flag(1);
+		#endif
 	}
     
     if((param->operation == GATTC_WRITE) && (param->seq_num == 0xaa))
