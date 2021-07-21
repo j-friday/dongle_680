@@ -577,7 +577,7 @@ uint8_t get_ble_name(uint8_t *name)
 uint8_t get_ble_state(void)
 {
     uint8_t state;
-#if USB_DRIVER    
+#if 0 //USB_DRIVER    
     if(ke_state_get(KE_BUILD_ID(TASK_APP,0)) == APPC_LINK_CONNECTED)
 #else
     if(ke_state_get(KE_BUILD_ID(TASK_APP,dmo_channel)) == APPC_SERVICE_CONNECTED)
