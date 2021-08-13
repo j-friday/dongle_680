@@ -700,7 +700,9 @@ uint8_t rwip_sleep(void)
 void rwip_driver_init(bool reset)
 {
     #if (BLE_EMB_PRESENT || BT_EMB_PRESENT)
+    #if (PLF_NVDS) 
     uint8_t length;
+    #endif
     uint8_t sleep_enable = 0;
     uint8_t ext_wakeup_enable;
     #if (BT_DUAL_MODE)
@@ -742,27 +744,29 @@ void rwip_driver_init(bool reset)
         ip_diagcntl_set(0);
     }
     #endif // (BT_DUAL_MODE)
-
+#if (PLF_NVDS)
     // Activate deep sleep feature if enabled in NVDS and in reset mode
     length = PARAM_LEN_SLEEP_ENABLE;
     if(!reset || rwip_param.get(PARAM_ID_SLEEP_ENABLE, &length, &sleep_enable) != PARAM_OK)
     {
         sleep_enable = 0;
     }
+#endif    
     sleep_enable = 1;
     // check is sleep is enabled
     if(sleep_enable != 0)
     {
         uint16_t twext, twosc, twrm;
-
+#if (PLF_NVDS)
         // Set max sleep duration depending on wake-up mode
         if(rwip_param.get(PARAM_ID_EXT_WAKEUP_ENABLE, &length, &ext_wakeup_enable) != PARAM_OK)
         {
             ext_wakeup_enable = 0;
         }
+#endif        
         ext_wakeup_enable = 1;
         rwip_env.ext_wakeup_enable = (ext_wakeup_enable != 0) ? true : false;
-
+#if (PLF_NVDS)
         // Set max sleep duration depending on wake-up mode
         length = sizeof(rwip_env.sleep_algo_dur);
         if(rwip_param.get(PARAM_ID_SLEEP_ALGO_DUR, &length, (uint8_t*) &rwip_env.sleep_algo_dur) != PARAM_OK)
@@ -770,10 +774,12 @@ void rwip_driver_init(bool reset)
             // set a default duration: 200 us ==> 400 half us
             rwip_env.sleep_algo_dur = 400;
         }
-
+#else
+        rwip_env.sleep_algo_dur = 400;        
+#endif
         // Initialize sleep parameters
         rwip_env.sleep_acc_error   = 0;
-
+#if (PLF_NVDS)
         // Get TWrm from NVDS
         length = sizeof(uint16_t);
         if (rwip_param.get(PARAM_ID_RM_WAKEUP_TIME, &length, (uint8_t*)&twrm) != PARAM_OK)
@@ -781,7 +787,11 @@ void rwip_driver_init(bool reset)
             // Set default values : 625 us
             twrm = 1500;//SLEEP_RM_WAKEUP_DELAY;
         }
-
+#else
+        twrm = 1500;
+#endif
+        
+#if (PLF_NVDS)
         // Get TWosc from NVDS
         length = sizeof(uint16_t);
         if (rwip_param.get(PARAM_ID_OSC_WAKEUP_TIME, &length, (uint8_t*)&twosc) != PARAM_OK)
@@ -789,7 +799,11 @@ void rwip_driver_init(bool reset)
             // Set default values : 5 ms
             twosc = 1500;//SLEEP_OSC_NORMAL_WAKEUP_DELAY;
         }
+#else
+        twosc = 1500;
+#endif
 
+        #if (PLF_NVDS)
         // Get TWext from NVDS
         length = sizeof(uint16_t);
         if (rwip_param.get(PARAM_ID_EXT_WAKEUP_TIME, &length, (uint8_t*)&twext) != PARAM_OK)
@@ -797,6 +811,10 @@ void rwip_driver_init(bool reset)
             // Set default values : 5 ms
             twext = 1500;//SLEEP_OSC_EXT_WAKEUP_DELAY;
         }
+        #else
+        twext = 1500;
+        #endif
+
          bk_printf("twrm:%d us,twosc:%d us,twext:%d us\r\n",twrm,twosc,twext);
         twrm  = rwip_us_2_lpcycles(twrm);
         twosc = rwip_us_2_lpcycles(twosc);

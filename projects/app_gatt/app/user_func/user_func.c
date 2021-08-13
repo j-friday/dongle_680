@@ -552,10 +552,12 @@ uint8_t get_ble_errorinfo(void)
 
 enum appm_error set_ble_name(uint8_t len, uint8_t *name)
 {
+    #if (PLF_NVDS)
     if(rwip_param.set(PARAM_ID_DEVICE_NAME, len, (uint8_t *)&name[0]) != PARAM_OK)
     {
         return APPM_ERROR_STATE;
     }
+    #endif
     memset(user_info.ble_state.ble_name, 0x00, 32);
     memcpy(user_info.ble_state.ble_name, name, len);
     
@@ -566,10 +568,14 @@ uint8_t get_ble_name(uint8_t *name)
 {
     uint8_t len;
     //len = APP_DEVICE_NAME_MAX_LEN;
+    #if (PLF_NVDS)
     if (rwip_param.get(PARAM_ID_DEVICE_NAME, &len, name) != PARAM_OK)
     {        
         memcpy(name, user_info.ble_state.ble_name, APP_DEVICE_NAME_MAX_LEN);
     }
+    #else
+    memcpy(name, user_info.ble_state.ble_name, APP_DEVICE_NAME_MAX_LEN);
+    #endif
     len = strlen((const char*)name);
     return len;
 }
@@ -598,10 +604,12 @@ enum appm_error set_ble_mac(uint8_t *mac)
     
     //bk_printf("\r\nsetmac: %02x%02x%02x%02x%02x%02x\r\n",
     //        mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    #if (PLF_NVDS)
     if(rwip_param.set(PARAM_ID_BD_ADDRESS,6,(uint8_t *)&mac[0]) != PARAM_OK)
     {            
         return APPM_ERROR_STATE;
     }
+    #endif
     memcpy(llm_env.local_pub_addr.addr,mac,6);      
     memcpy(b_addr.addr,mac,6);
     memcpy(&co_default_bdaddr, mac, 6);
@@ -613,6 +621,7 @@ enum appm_error set_ble_mac(uint8_t *mac)
 enum appm_error get_ble_mac(uint8_t *mac)
 {
     struct bd_addr ble_addr = co_default_bdaddr;//llm_env.local_pub_addr;
+    #if (PLF_NVDS)
     uint8_t mac_len = 6;
     if(rwip_param.get(PARAM_ID_BD_ADDRESS,&mac_len,(uint8_t *)&mac[0]) != PARAM_OK)
     {            
@@ -624,7 +633,14 @@ enum appm_error get_ble_mac(uint8_t *mac)
         mac[0] = ble_addr.addr[0];
         bk_printf("PARAM_unOK\r\n");
     }
-   
+    #else
+    mac[5] = ble_addr.addr[5];
+    mac[4] = ble_addr.addr[4];
+    mac[3] = ble_addr.addr[3];
+    mac[2] = ble_addr.addr[2];
+    mac[1] = ble_addr.addr[1];
+    mac[0] = ble_addr.addr[0];
+    #endif
     //bk_printf("\r\n+MAC: %02x-%02x-%02x-%02x-%02x-%02x\r\n",
     //        mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
    
@@ -665,8 +681,9 @@ uint8_t get_ble_pincode(uint8_t *pincode)
 #include "app_adv.h"
 void user_remove_bond(void)
 {
+#if (PLF_NVDS)    
     app_sec_remove_bond();
-
+#endif
     if((ke_state_get(TASK_APP) == APPC_LINK_CONNECTED) || (ke_state_get(TASK_APP) == APPC_SERVICE_CONNECTED)) //Á¬½Ó×´Ì¬
     {
         appm_disconnect(0); 
@@ -861,6 +878,7 @@ uint8_t appm_add_adv_report_to_filter(struct gapm_ext_adv_report_ind *param)///(
 //timeout:10ms/unit
 uint8_t set_ble_parm(uint16_t interval, uint16_t latency, uint16_t timeout)
 {    
+#if (PLF_NVDS)    
     if(rwip_param.set(NVDS_TAG_CONN_INTV, 2, (uint8_t*) &interval) != PARAM_OK)
     {
         bk_printf("set:NVDS_TAG_CONN_INTV err\r\n");
@@ -876,7 +894,7 @@ uint8_t set_ble_parm(uint16_t interval, uint16_t latency, uint16_t timeout)
         bk_printf("set:NVDS_TAG_CONN_SUP_TO err\r\n");
         return 1;
     }
-    
+#endif    
     user_info.ble_state.ble_parm.con_interval = interval;
     user_info.ble_state.ble_parm.latency      = latency;
     user_info.ble_state.ble_parm.timeout      = timeout;
@@ -930,11 +948,12 @@ uint8_t baudrate_check(uint32_t baudrate)
 enum appm_error set_baudrate(uint8_t uart_id, uint32_t baudrate)
 {
     bk_printf("baudrate %d\r\n",baudrate);
-      
+#if (PLF_NVDS)       
 	//if(rwip_param.set(PARAM_ID_UART_BAUDRATE,sizeof(baudrate),(uint8_t *)&baudrate) != PARAM_OK)
 	//{		
 	//	return APPM_ERROR_STATE;
 	//}
+#endif    
     #if (!USB_DRIVER)
     if(uart_id == 0)
     {

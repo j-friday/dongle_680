@@ -156,7 +156,7 @@
 //   <e> CFG_NVDS
 //   	<i> enable NVDS
 //   </e>
-#if ( 1 )
+#if ( 0 )
   #define CFG_NVDS
 #endif
 

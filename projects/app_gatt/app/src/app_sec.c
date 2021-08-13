@@ -421,7 +421,7 @@ static int gapc_bond_ind_handler(ke_msg_id_t const msgid,
             // Update the bonding status in the environment
 			app_sec_env.bond_lost = false;
 			app_sec_env.pairing_fail = false;
-            app_sec_env.bonded = true;
+            app_sec_env.bonded = false;//true;
 
             bk_printf("PAIRING_SUCCEED\r\n");
             // Update the bonding status in the environment
@@ -524,7 +524,7 @@ static int gapc_encrypt_req_ind_handler(ke_msg_id_t const msgid,
 
     cfm->found    = false;
 
-    if(1)//(app_sec_env.bonded)
+    if(app_sec_env.bonded)
     {
         #if (NVDS_SUPPORT)
         // Retrieve the required informations from NVDS

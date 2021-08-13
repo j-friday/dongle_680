@@ -759,6 +759,7 @@ static int gapm_cmp_evt_handler(ke_msg_id_t const msgid,
             #if (BLE_APP_SEC)
             // If not Bonded already store the generated value in NVDS
             //if (app_sec_get_bond_status()==false)
+            #if (PLF_NVDS)
             if (nvds_get(NVDS_TAG_LOC_IRK, &key_len, app_env.loc_irk) != NVDS_OK)
             {
                 #if (NVDS_SUPPORT)
@@ -768,6 +769,7 @@ static int gapm_cmp_evt_handler(ke_msg_id_t const msgid,
                     ASSERT_INFO(0, 0, 0);
                 }
             }
+            #endif
             #endif //(BLE_APP_SEC)
             app_env.rand_cnt = 0;
              
@@ -787,7 +789,7 @@ static int gapm_cmp_evt_handler(ke_msg_id_t const msgid,
             ASSERT_INFO(param->status == GAP_ERR_NO_ERROR, param->operation, param->status);
 
             #if (BLE_APP_SEC)
-            if (app_sec_get_bond_status()==true) 
+            if (0)//(app_sec_get_bond_status()==true) 
             {
                 #if (NVDS_SUPPORT)
                 // If Bonded retrieve the local IRK from NVDS

@@ -81,7 +81,7 @@ static void appm_start_scaning(void)
         p_cmd->u_param.scan_param.type = GAPM_SCAN_TYPE_GEN_DISC;//GAPM_SCAN_TYPE_OBSERVER;//;
         
         p_cmd->u_param.scan_param.prop = GAPM_SCAN_PROP_PHY_1M_BIT ;//| GAPM_SCAN_PROP_ACTIVE_1M_BIT;
-        
+#if (PLF_NVDS)        
         uint8_t scan_param_len = 2;
         if(rwip_param.get(NVDS_TAG_SCAN_INTV, &scan_param_len, (uint8_t*) &app_env.scan_intv) != PARAM_OK)
         {
@@ -91,6 +91,7 @@ static void appm_start_scaning(void)
         {
             bk_printf("not found:NVDS_TAG_SCAN_WD err\r\n");
         }
+#endif        
         bk_printf("scan_intv:%d,scan_wd:%d\r\n",app_env.scan_intv,app_env.scan_wd);
         p_cmd->u_param.scan_param.scan_param_1m.scan_intv = app_env.scan_intv;
         p_cmd->u_param.scan_param.scan_param_1m.scan_wd = app_env.scan_wd;

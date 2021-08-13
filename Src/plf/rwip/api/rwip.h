@@ -237,7 +237,7 @@ struct rwip_rf_api
     /// RF wakeup delay (in slots)
     uint8_t wakeup_delay;
 };
-
+#if (PLF_NVDS)
 /// API functions of the parameters that are used by the BLE or BT software
 struct rwip_param_api
 {
@@ -266,7 +266,7 @@ struct rwip_param_api
      */
     uint8_t (*del) (uint8_t param_id);
 };
-
+#endif
 /// Internal API for priority
 struct rwip_prio
 {
@@ -370,8 +370,10 @@ struct rom_env_tag
 
 /// API for RF driver
 extern struct rwip_rf_api rwip_rf;
+#if (PLF_NVDS)
 /// API for parameters
 extern struct rwip_param_api rwip_param;
+#endif
 extern struct rom_env_tag rom_env;
 
 #if (BLE_EMB_PRESENT || BT_EMB_PRESENT)
@@ -425,8 +427,9 @@ void rwip_init(uint32_t error);
 void rwip_reset(void);
 
 void rwip_ke_mem_init(uint32_t * heap_env,uint32_t * heap_db,uint32_t * heap_msg,uint32_t * heap_non_ret);
-
+#if (PLF_NVDS)
 void rwip_param_init(struct rwip_param_api param);
+#endif
 void rwip_eif_api_init(struct rwip_eif_api api);
 
 #if (BT_EMB_PRESENT)

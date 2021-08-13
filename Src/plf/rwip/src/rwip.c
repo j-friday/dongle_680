@@ -313,7 +313,7 @@ uint8_t rwip_rst_state;
 #if (!NVDS_SUPPORT)
 __STATIC uint8_t rwip_param_dummy_get(uint8_t param_id, uint8_t * lengthPtr, uint8_t *buf)
 {
-    stack_printf("rwip_param_dummy_get\r\n");
+    //stack_printf("rwip_param_dummy_get\r\n");
     return (PARAM_FAIL);
 }
 __STATIC uint8_t rwip_param_dummy_set(uint8_t param_id, uint8_t length, uint8_t *buf)
@@ -431,23 +431,23 @@ void rwip_init(uint32_t error)
     // Memory allocated for environment variables
     ke_mem_init(KE_MEM_ENV,           (uint8_t*)rwip_heap_env,     RWIP_CALC_HEAP_LEN_IN_BYTES(RWIP_HEAP_ENV_SIZE));
     //ke_mem_init(KE_MEM_ENV,           (uint8_t*)rwip_heap_env,     400);
-    stack_printf("MEM_ENV size:%d\r\n",RWIP_HEAP_ENV_SIZE);
-    stack_printf("test :%x\r\n",test_stack);
+    //stack_printf("MEM_ENV size:%d\r\n",RWIP_HEAP_ENV_SIZE);
+    //stack_printf("test :%x\r\n",test_stack);
     
     #if (BLE_HOST_PRESENT)
     // Memory allocated for Attribute database
     ke_mem_init(KE_MEM_ATT_DB,        (uint8_t*)rwip_heap_db,      RWIP_CALC_HEAP_LEN_IN_BYTES(RWIP_HEAP_DB_SIZE));
   //  ke_mem_init(KE_MEM_ATT_DB,        (uint8_t*)rwip_heap_db,      400);
-    stack_printf("ATT_DB size:%d\r\n",RWIP_HEAP_DB_SIZE);
+    //stack_printf("ATT_DB size:%d\r\n",RWIP_HEAP_DB_SIZE);
     #endif // (BLE_HOST_PRESENT) 
     // Memory allocated for kernel messages
     ke_mem_init(KE_MEM_KE_MSG,        (uint8_t*)rwip_heap_msg,     RWIP_CALC_HEAP_LEN_IN_BYTES(RWIP_HEAP_MSG_SIZE));
    // ke_mem_init(KE_MEM_KE_MSG,        (uint8_t*)rwip_heap_msg,     400);
-    stack_printf("KE_MSG size:%d\r\n",RWIP_HEAP_MSG_SIZE);
+    //stack_printf("KE_MSG size:%d\r\n",RWIP_HEAP_MSG_SIZE);
     // Non Retention memory block
     ke_mem_init(KE_MEM_NON_RETENTION, (uint8_t*)rwip_heap_non_ret, RWIP_CALC_HEAP_LEN_IN_BYTES(RWIP_HEAP_NON_RET_SIZE));
    // ke_mem_init(KE_MEM_NON_RETENTION, (uint8_t*)rwip_heap_non_ret, 800);
-    stack_printf("RETENTION size:%d\r\n",RWIP_HEAP_NON_RET_SIZE);
+    //stack_printf("RETENTION size:%d\r\n",RWIP_HEAP_NON_RET_SIZE);
 
     #if (BT_EMB_PRESENT || BLE_EMB_PRESENT)
     #if (RW_DEBUG)
@@ -473,10 +473,10 @@ void rwip_init(uint32_t error)
 
     #if (DISPLAY_SUPPORT)
     // Initialize display module
-    display_init();
+    //display_init();
 
     // Add some configuration information to display
-    display_add_config();
+    //display_add_config();
     #endif //DISPLAY_SUPPORT
 
     #if (BT_EMB_PRESENT || BLE_EMB_PRESENT)
@@ -488,46 +488,46 @@ void rwip_init(uint32_t error)
     #if (H4TL_SUPPORT)
     #if (H4TL_NB_CHANNEL > 1)
     h4tl_init(1, rwip_eif_get(1));
-    stack_printf("h4tl_init ok\r\n");
+    //stack_printf("h4tl_init ok\r\n");
     #endif // (H4TL_NB_CHANNEL > 1)
     h4tl_init(0, rwip_eif_get(0));
-    stack_printf("h4tl_init-1 ok\r\n");
+    //stack_printf("h4tl_init-1 ok\r\n");
     #endif //(H4TL_SUPPORT)
 
     #if (HCI_PRESENT)
     // Initialize the HCI
     hci_init(false);
-    stack_printf("hci_init ok\r\n");
+    //stack_printf("hci_init ok\r\n");
     #endif //HCI_PRESENT
 
     #if (AHI_TL_SUPPORT)
     // Initialize the Application Host Interface
     ahi_init();
-    stack_printf("ahi_init ok\r\n");
+    //stack_printf("ahi_init ok\r\n");
     #endif //AHI_TL_SUPPORT
 
     #if (BLE_HOST_PRESENT)
     // Initialize BLE Host stack
     rwble_hl_init(false);
-    stack_printf("rwble_hl_init ok\r\n");
+    //stack_printf("rwble_hl_init ok\r\n");
     #endif //BLE_HOST_PRESENT
 
     #if (BT_EMB_PRESENT)
     // Initialize BT
     rwbt_init();
-    stack_printf("rwbt_init ok\r\n");
+    //stack_printf("rwbt_init ok\r\n");
     #endif //BT_EMB_PRESENT
 
     #if (BLE_EMB_PRESENT)
     // Initialize BLE
     rwble_init(false);
-    stack_printf("rwble_init ok\r\n");
+    //stack_printf("rwble_init ok\r\n");
     #endif //BLE_EMB_PRESENT
 
     // Initialize AES
     #if (BT_DUAL_MODE || BLE_STD_MODE)
     aes_init(false);
-    stack_printf("aes_init ok\r\n");
+    //stack_printf("aes_init ok\r\n");
     #endif //(BT_DUAL_MODE || BLE_STD_MODE)
 
     #if (BT_EMB_PRESENT || BLE_EMB_PRESENT)
@@ -549,12 +549,12 @@ void rwip_init(uint32_t error)
     #else
     rwip_driver_init(false);
     #endif //(ROM_REGISTER_CALLBACK)
-    stack_printf("rwip_driver_init ok\r\n");
+    //stack_printf("rwip_driver_init ok\r\n");
 
     #if (BT_EMB_PRESENT || BLE_EMB_PRESENT)
     #if (RW_WLAN_COEX)
     rwip_wlcoex_set(1);
-    stack_printf("rwip_wlcoex_set ok\r\n");
+    //stack_printf("rwip_wlcoex_set ok\r\n");
     #endif //(RW_WLAN_COEX)
     #endif //(BT_EMB_PRESENT || BLE_EMB_PRESENT)
 
@@ -562,7 +562,7 @@ void rwip_init(uint32_t error)
     // If FW initializes due to FW reset, send the message to Host
     if(error != RESET_NO_ERROR)
     {
-        stack_printf("@@error(%x)\r\n",error);
+        //stack_printf("@@error(%x)\r\n",error);
         if(error == RESET_TO_ROM || error == RESET_AND_LOAD_FW)
         {
             // Send platform reset command complete if requested by user

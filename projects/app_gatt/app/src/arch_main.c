@@ -376,13 +376,14 @@ void rw_main(void)
     
     user_init();//
 
+    #if (PLF_NVDS)
+    // Initialize NVDS module
     struct rwip_param_api param;
     param.get = nvds_get;
     param.set = nvds_put;
     param.del = nvds_del;
     rwip_param_init(param);
-    #if (PLF_NVDS)
-    // Initialize NVDS module
+    
     nvds_init();
     #endif // PLF_NVDS
 

@@ -98,7 +98,7 @@ uint8_t appm_start_connecting(struct gap_bdaddr bdaddr)
       
         p_cmd->u_param.init_param.conn_param_1m.ce_len_min = 10;
         p_cmd->u_param.init_param.conn_param_1m.ce_len_max = 20;  
-
+#if (PLF_NVDS)
         uint8_t conn_param_len = 2;
         if(rwip_param.get(NVDS_TAG_CONN_INTV, &conn_param_len, (uint8_t*) &app_env.conn_intv) != PARAM_OK)
         {
@@ -112,6 +112,7 @@ uint8_t appm_start_connecting(struct gap_bdaddr bdaddr)
         {
             bk_printf("not found:NVDS_TAG_CONN_SUP_TO err\r\n");
         }
+#endif        
         bk_printf("conn_intv:%d,conn_latency:%d,conn_super_to:%d\r\n",app_env.conn_intv,app_env.conn_latency,app_env.conn_super_to);        
         p_cmd->u_param.init_param.conn_param_1m.conn_intv_min = app_env.conn_intv;
         p_cmd->u_param.init_param.conn_param_1m.conn_intv_max = app_env.conn_intv;       

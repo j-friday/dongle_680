@@ -152,7 +152,7 @@ __BLEIRQ void rwble_isr(void)
         // Check BLE interrupt status and call the appropriate handlers
         uint32_t irq_stat      = ble_intstat0_get();
         
-        stack_printf("%s irq_stat(%x) \r\n",__func__, irq_stat );  	
+        //stack_printf("%s irq_stat(%x) \r\n",__func__, irq_stat );  	
 
         if (irq_stat == 0)
             break;
@@ -162,7 +162,7 @@ __BLEIRQ void rwble_isr(void)
         {
             // Clear the interrupt
             ble_intack0_errorintack_clearf(1);
-            stack_printf("err:%x \r\n",ble_errortypestat_get());  
+            //stack_printf("err:%x \r\n",ble_errortypestat_get());  
             ASSERT_INFO(0, ble_errortypestat_get(), (ble_errortypestat_get()>>16));
         }
     }
