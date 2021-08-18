@@ -1107,7 +1107,7 @@ void app_send_keyboad_data(void)
         {
             if((usb_send_totail < ble_rx_data_len) && (check_b_isTRxing() == FALSE))//for(uint16_t i = 0; i< ble_rx_data_len; i++)
             {
-                //bk_printf("%02x ",ble_data_buf[i]);
+                //bk_printf("%02x ",ble_data_buf[usb_send_totail]);
                 //uart_clean_printf("%02x ",ble_data_buf[i]); 
                 memset(keybuf,0x0,8);        
                 for(uint8_t j = 0; j< 94; j++)

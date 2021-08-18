@@ -10,6 +10,7 @@
 #include "arch.h"
 #include "ke_event.h"
 #include "user_func.h"
+#include "icu.h"
 
 volatile uint8_t  uart1_rx_done = FALSE;
 volatile uint32_t uart1_rx_index = 0;
@@ -114,6 +115,9 @@ __RAM_CODE void UART1ISR(void)
 {
     unsigned long uart_int_status;
     unsigned char uart_fifo_rdata;	
+#if (!USB_DRIVER)
+	int pos = 0, sum_len;
+#endif
 //    Dbg1Printf("UART1ISR\r\n");
     uart_int_status = addUART1_Reg0x5;
     if (uart_int_status & (bitUART1_Reg0x5_RX_FIFO_NEED_READ | bitUART1_Reg0x5_UART_RX_STOP_END))
@@ -142,8 +146,16 @@ __RAM_CODE void UART1ISR(void)
             set_at_rsp_ch(0);
             ke_event_set(KE_EVENT_AOS_CLI);
             #endif//
-            #if (!USB_DRIVER)            
-            app_send_ble_data(dmo_channel, uart1_rx_index, uart1_rx_buf);            
+            #if (!USB_DRIVER)
+			sum_len = uart1_rx_index;
+			do 
+			{
+				int tx_len = sum_len < 240 ? sum_len : 240;
+				app_send_ble_data(dmo_channel, tx_len, &uart1_rx_buf[pos]);
+				pos += tx_len;
+				sum_len -= tx_len;
+				Delay_us(10000);
+			} while(sum_len > 0);
             clear_uart1_buffer();
             #endif
         }

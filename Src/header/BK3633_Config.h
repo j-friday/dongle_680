@@ -102,7 +102,7 @@ int Dbg_stackPrintf(const char *fmt,...);
 #define bkstackprintf            Dbg_stackPrintf 
 #else
 
-#define bk_printf                uart_printf_null//Dbg1Printf///DbgPrintf// 
+#define bk_printf                uart_printf_null//DbgPrintf//uart_printf_null//Dbg1Printf///DbgPrintf// 
 #define bkstackprintf            Dbg_stackPrintf//DbgPrintf// 
 #endif
 #define WaitUartTx               uart_wait_tx_finish
