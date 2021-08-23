@@ -41,7 +41,7 @@
 
 
 #if USER_USE_UART_1
-#define UART_PRINTF  uart_printf_null//Dbg1Printf//////uart_printf //uart_printf 
+//#define UART_PRINTF  uart_printf_null//Dbg1Printf//////uart_printf //uart_printf 
 #define USER_PRINTF  DbgPrintf //Dbg1Printf//uart_printf_null//////
 #else
 //#define UART_PRINTF  uart_printf_null//Dbg1Printf/// //uart_printf 
@@ -84,7 +84,7 @@
 #define USER_UART_RX_BUFF_TAILOR uart1_rx_buff_tailor
 #define USER_UART_RX_INDEX       uart1_rx_index
 
-#define USER_UART_DATA_SEND      uart1_data_send
+#define USER_UART_DATA_SEND      uart1_send//uart1_data_send
 #define USER_RING_BUFF_CLEAN     uart1_ringbuf_clean
 #endif
 

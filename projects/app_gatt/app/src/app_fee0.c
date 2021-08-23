@@ -106,7 +106,7 @@ uint8_t app_fee4_send_ntf(uint8_t conidx,uint16_t len,uint8_t* buf)
 {
     bk_printf("%s:len:%d,state:0x%x %x\r\n",__func__,len,ke_state_get(KE_BUILD_ID(TASK_APP,conidx)), app_fee0_env.ntf_cfg[conidx]);
     uint8_t ret = APPM_ERROR_NO_ERROR;
-    if((ke_state_get(KE_BUILD_ID(TASK_APP,conidx)) == APPC_LINK_CONNECTED) || ke_state_get(KE_BUILD_ID(TASK_APP,conidx)) == APPC_SERVICE_CONNECTED)
+    if((ke_state_get(KE_BUILD_ID(TASK_APP,conidx)) == APPC_LINK_CONNECTED))// || ke_state_get(KE_BUILD_ID(TASK_APP,conidx)) == APPC_SERVICE_CONNECTED)
     {
         if(app_fee0_env.ntf_cfg[conidx] != PRF_CLI_STOP_NTFIND)
         {
@@ -264,12 +264,14 @@ static int fee2_writer_cmd_handler(ke_msg_id_t const msgid,
     return (KE_MSG_CONSUMED);
 }
 #include "ke_event.h"
+#include "uart.h"
 static int fee3_writer_req_handler(ke_msg_id_t const msgid,
                                      struct fee0s_fee23_writer_ind *param,
                                      ke_task_id_t const dest_id,
                                      ke_task_id_t const src_id)
 {
     // Drop the message
+    #if 0
 	bk_printf("FEE3 conidx:%d,length:%d,param->value = 0x ",param->conidx,param->length);
 
 	for(uint16_t i = 0;i < param->length;i++)
@@ -277,14 +279,22 @@ static int fee3_writer_req_handler(ke_msg_id_t const msgid,
 		bk_printf("%02x ",param->value[i]);
 	}
 	bk_printf("\r\n");
-    set_at_rsp_ch(1);
-    #if CLI_CONSOLE
-    store_uart_ringbuf_data(param->value, param->length);
-    ke_event_set(KE_EVENT_AOS_CLI);
-    #ifdef USER_CMD_TIMEOUT_EN
-    ke_timer_set(USER_CMD_TIMEOUT_HANDLER, TASK_APPM, 15);
     #endif
-    #endif//
+    if(get_at_mode() == 2)
+    {
+        USER_UART_DATA_SEND(param->value, param->length);
+    }
+    else
+    {
+        set_at_rsp_ch(1);
+        #if CLI_CONSOLE
+        store_uart_ringbuf_data(param->value, param->length);
+        ke_event_set(KE_EVENT_AOS_CLI);
+        #ifdef USER_CMD_TIMEOUT_EN
+        ke_timer_set(USER_CMD_TIMEOUT_HANDLER, TASK_APPM, 15);
+        #endif
+        #endif//
+    }
     return (KE_MSG_CONSUMED);   
    
 }

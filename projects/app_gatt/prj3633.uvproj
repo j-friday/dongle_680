@@ -449,11 +449,6 @@
               <FilePath>..\..\Src\driver\uart_initial.c</FilePath>
             </File>
             <File>
-              <FileName>uart1_initial .c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Src\driver\uart1_initial .c</FilePath>
-            </File>
-            <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\driver\gpio\gpio.c</FilePath>
@@ -507,6 +502,11 @@
               <FileName>adc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\driver\adc\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart1_initial.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\driver\uart1_initial.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1269,11 +1269,6 @@
               <FilePath>..\..\Src\driver\uart_initial.c</FilePath>
             </File>
             <File>
-              <FileName>uart1_initial .c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Src\driver\uart1_initial .c</FilePath>
-            </File>
-            <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\driver\gpio\gpio.c</FilePath>
@@ -1327,6 +1322,11 @@
               <FileName>adc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\driver\adc\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart1_initial.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\driver\uart1_initial.c</FilePath>
             </File>
           </Files>
         </Group>

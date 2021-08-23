@@ -659,9 +659,9 @@ static int gapm_cmp_evt_handler(ke_msg_id_t const msgid,
                         // Host privacy enabled by default
                         cmd->privacy_cfg |= GAPM_PRIV_CFG_PRIV_ADDR_BIT;
                     }
-                }
-				#if 1
+                }				
                 else
+                #endif //(NVDS_SUPPORT)
                 {
                     memcpy(&cmd->addr.addr[0],&co_default_bdaddr.addr[0],BD_ADDR_LEN);
                     if ((cmd->addr.addr[5] & 0xC0) == 0xC0)
@@ -670,8 +670,7 @@ static int gapm_cmp_evt_handler(ke_msg_id_t const msgid,
                         cmd->privacy_cfg |= GAPM_PRIV_CFG_PRIV_ADDR_BIT;
                     }
                 }
-				#endif
-                #endif //(NVDS_SUPPORT)
+                
 
                 #if (BLE_APP_AM0)
                 cmd->audio_cfg   = GAPM_MASK_AUDIO_AM0_SUP;
@@ -1106,6 +1105,10 @@ static int gapc_connection_req_ind_handler(ke_msg_id_t const msgid,
             
             //ke_timer_set(APP_CHANGE_MTU_SIZE_REQ, TASK_APP, 50);
            // app_sec_send_bond_cmd(app_env.conidx);
+            //ke_timer_set(APPM_CON_TIMEOUT_TIMER, TASK_APP, 800);
+            #if !USB_DRIVER            
+            ke_timer_set(APPM_CON_TIMEOUT_TIMER, TASK_APP, 1800);
+            #endif
         }
         else
         {
@@ -1135,7 +1138,7 @@ static int gapc_connection_req_ind_handler(ke_msg_id_t const msgid,
         // We are now in connected State
         ke_state_set(KE_BUILD_ID(TASK_APP,app_env.conidx), APPC_LINK_CONNECTED);
         #if !USB_DRIVER
-        set_gpio_status(CONNECT_STATUS_BIT, CONNECT_SUCCESS);
+        set_gpio_status(CONNECT_STATUS_BIT, CONNECT_SUCCESS);        
         #endif
         {
             uint8_t rsp_buff[20];
@@ -1301,6 +1304,7 @@ static int gapc_cmp_evt_handler(ke_msg_id_t const msgid,
 	        else
 	        {
 	            bk_printf("gapc security req ok !\r\n");
+                //ke_timer_set(APPM_CON_TIMEOUT_TIMER, TASK_APP, 800);
 	        }
 		}break;
 		case (GAPC_BOND): // 0xa
@@ -1418,11 +1422,21 @@ static int gapc_disconnect_ind_handler(ke_msg_id_t const msgid,
     #endif //(BLE_ISO_MODE_0_PROTOCOL)
 
     #if (!BLE_APP_HID)
-    // Restart Advertising
-    appm_update_adv_state(true);
+    // Restart Advertising  
+    while(app_env.adv_state !=APP_ADV_STATE_CREATING)
+    {
+        appm_update_adv_state(true);
+        if(app_env.adv_state == APP_ADV_STATE_STARTED)break;
+    }
+    
     #endif //(!BLE_APP_HID)
     #if !USB_DRIVER
     set_gpio_status(CONNECT_STATUS_BIT, CONNECT_ABNORMAL);
+    if(dmo_channel == conidx)dmo_channel = 0xFF;
+    if(ke_timer_active(APPM_CON_TIMEOUT_TIMER, TASK_APP))
+    {
+        ke_timer_clear(APPM_CON_TIMEOUT_TIMER, TASK_APP);
+    }
     #endif
     {
         uint8_t rsp_buff[20];
@@ -1430,7 +1444,7 @@ static int gapc_disconnect_ind_handler(ke_msg_id_t const msgid,
         len = sprintf((char *)rsp_buff,"\r\nOK\r\n");
         UART_SEND_AT(rsp_buff, len);
     }
-    if(dmo_channel == conidx)dmo_channel = 0xFF;
+    
     return (KE_MSG_CONSUMED);
 }
 
@@ -1779,9 +1793,14 @@ static int gattc_cmp_evt_handler(ke_msg_id_t const msgid,
 	{
     	ke_state_set(KE_BUILD_ID(TASK_APP,conidx),APPC_SERVICE_CONNECTED);
         bk_printf("\r\nAPPC_SERVICE_CONNECTED\r\n");
-        sdp_enable_all_server_ntf_ind(conidx,1);
+        //sdp_enable_all_server_ntf_ind(conidx,1);
 		#if USB_DRIVER
 		set_adapter_in_flag(1);
+		#else
+		if(ke_timer_active(APPM_CON_TIMEOUT_TIMER, TASK_APP))
+        {
+            ke_timer_clear(APPM_CON_TIMEOUT_TIMER, TASK_APP);
+        }
 		#endif
 	}
     
@@ -1870,7 +1889,24 @@ static int appm_scan_dev_timerout_handler(ke_msg_id_t const msgid,
            
     return (KE_MSG_CONSUMED);
 }
+
+static int  appm_con_dev_timerout_handler(ke_msg_id_t const msgid,
+                                          struct gapm_profile_added_ind *param,
+                                          ke_task_id_t const dest_id,
+                                          ke_task_id_t const src_id)
+                                              
+{
+	bk_printf("%s\r\n",__func__);
+
+    if(ke_state_get(KE_BUILD_ID(TASK_APP,dmo_channel)) != APPC_SERVICE_CONNECTED)
+    {
+        soft_reset();
+    }
+           
+    return (KE_MSG_CONSUMED);
+}
 #endif
+
 /*
  * GLOBAL VARIABLES DEFINITION
  ****************************************************************************************
@@ -1920,6 +1956,7 @@ KE_MSG_HANDLER_TAB(appm)
     #else
     {APP_BLE_AUTO_CONN_HANDLER, (ke_msg_func_t)app_ble_auto_conn_handler},
     {APPM_SCAN_TIMEOUT_TIMER,   (ke_msg_func_t)appm_scan_dev_timerout_handler},
+    {APPM_CON_TIMEOUT_TIMER,        (ke_msg_func_t)appm_con_dev_timerout_handler},
     #endif
 };
 

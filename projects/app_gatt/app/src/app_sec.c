@@ -450,7 +450,10 @@ static int gapc_bond_ind_handler(ke_msg_id_t const msgid,
             #if (BLE_APP_AM0)
             app_am0_send_audio_init(KE_IDX_GET(src_id));
             #endif //(BLE_APP_AM0)
-            sdp_discover_all_service(app_env.conidx);
+            if(app_env.role[conidx] == ROLE_MASTER)
+            {
+                sdp_discover_all_service(app_env.conidx);
+            }
             
             ke_timer_set(APP_CHANGE_MTU_SIZE_REQ, TASK_APP, 50);
         } break;

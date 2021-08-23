@@ -51,6 +51,7 @@ static void at_mode(char *buf, int len, int argc, char **argv)
     else if((argc == 2)&&(strlen(argv[1]) == 1))
     {
         mode = atoi(argv[1]);
+        if((mode == 2) && !get_ble_state())goto EXIT;
         if(mode < 3)
         {
             set_at_mode(mode);

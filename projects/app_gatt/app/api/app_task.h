@@ -103,6 +103,7 @@ enum app_msg_id
     #else
     APP_BLE_AUTO_CONN_HANDLER,
     APPM_SCAN_TIMEOUT_TIMER,
+    APPM_CON_TIMEOUT_TIMER,
     #endif
 };
 

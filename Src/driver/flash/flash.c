@@ -6,9 +6,6 @@
 #include "uart.h"
 #include "rwip.h"
 #include "ll.h"
-#if(BEKEN_EVENT_2_4G)
-#include "BK_System.h"
-#endif
 
 
 
@@ -135,12 +132,15 @@ void flash_write_sr( uint8_t bytes,  uint16_t val )
 		case MX_FLASH_4M:
 		case MX_FLASH_1:			   //MG xx
 			REG_FLASH_CONF &= 0xffdf0fff;
-		break;
-        
+		break;     
+		
 		case GD_FLASH_1:			  //QD xx ,
 		case BY25Q80:
 		case PN25f04:
 			REG_FLASH_CONF &= 0xfefe0fff;
+        break;
+        case P25Q40U:
+            REG_FLASH_CONF &= 0xfef00fff;
 		break;
         case XTX_FLASH_1:			   //XTX xx
 		case GD_MD25D40:
@@ -180,64 +180,82 @@ void flash_write_sr( uint8_t bytes,  uint16_t val )
 
 void flash_wp_256k( void)
 {
- //   return;
+		uint32_t flash_sr;
+		flash_sr=flash_read_sr( );
     switch(flash_mid)
     {
         case MX_FLASH_4M:
         case MX_FLASH_1:			   //MG xx
-            flash_write_sr( 2, 0x088C );
+					  if(flash_sr!=0x088C)
+							flash_write_sr( 2, 0x088C );
             break;
         case XTX_FLASH_1:			   //XTX xx
-            flash_write_sr( 1, 0xAC );
+					  if(flash_sr!=0xAC)							
+							flash_write_sr( 1, 0xAC );
             break;   
 
         case GD_FLASH_1:			  //QD xx ,
         case BY25Q80:
         case PN25f04:
-            flash_write_sr( 2, 0x00ac );
+					  if(flash_sr!=0x00ac)						
+							flash_write_sr( 2, 0x00ac );
+            break;
+        case P25Q40U:
+					  if(flash_sr!=0x002c)							
+							flash_write_sr( 2, 0x002c );  
             break;
         case GD_MD25D40:
         case GD_GD25WD40:    
         default:
-            flash_write_sr( 1, 0x98 );
+					  if(flash_sr!=0x98)						
+							flash_write_sr( 1, 0x98 );
             break;    
     }
 }
 
 void flash_wp_ALL( void )
 {
-   //  return;
+		uint32_t flash_sr;
+		flash_sr=flash_read_sr( );
     switch(flash_mid)
     {
         case MX_FLASH_4M:
         case MX_FLASH_1:			   //MG xx
-            flash_write_sr( 2, 0x00bc );
+					  if(flash_sr!=0x00bc)	
+							flash_write_sr( 2, 0x00bc );
             break;
         case XTX_FLASH_1:			   //XTX xx
-            flash_write_sr( 1, 0xBC );
+					  if(flash_sr!=0xBC)	
+							flash_write_sr( 1, 0xBC );
             break;  
         case GD_FLASH_1:			  //QD xx ,
         case BY25Q80:
         case PN25f04:
-            flash_write_sr( 2, 0x0094 );
+					  if(flash_sr!=0x0094)	
+							flash_write_sr( 2, 0x0094 );
             break;
+        case P25Q40U:
+					  if(flash_sr!=0x0010)	
+							flash_write_sr( 2, 0x0010 );
+            break;    
         case GD_MD25D40:
         case GD_GD25WD40:    
         default:
-            flash_write_sr( 1, 0x9c );
+					  if(flash_sr!=0x9c)	
+							flash_write_sr( 1, 0x9c );
             break;    
     }
 }
 
 void flash_advance_init(void)
 {
-    uint32_t flash_sr;
+//    uint32_t flash_sr;
 
     flash_mid = get_flash_ID();
-    bk_printf("flash_mid=%x\n",flash_mid);
-    flash_sr=flash_read_sr( );
- //return;
-    switch(flash_mid)
+    
+  //  flash_sr=flash_read_sr( );
+		flash_wp_ALL();
+  /*  switch(flash_mid)
     {
         case MX_FLASH_4M:
         case MX_FLASH_1:			   //MG xx
@@ -254,14 +272,18 @@ void flash_advance_init(void)
             if(flash_sr!=0x0094)
                 flash_write_sr( 2, 0x0094 );
             break;
+        case P25Q40U:
+            if(flash_sr!=0x0010)
+                flash_write_sr( 2, 0x0010 );
+            break;
         case GD_MD25D40:
         case GD_GD25WD40:    
         default:
             if(flash_sr!=0x9c)
                 flash_write_sr( 1, 0x9c );
             break;    
-    }
-   
+    }*/
+    bk_printf("flash_mid=%x\n",flash_mid);   
 }
 
 
@@ -300,18 +322,20 @@ void flash_erase_sector(uint32_t address)
 
 
 void flash_read_data (uint8_t *buffer, uint32_t address, uint32_t len)
-{	
-    uint32_t i, j,k;
-    uint32_t addr = address;
+{
+	
+    uint32_t i;
+    uint32_t addr = address&(~0x1F);
     uint32_t buf[8];
-    k=0;  
+    uint8_t *pb = (uint8_t *)&buf[0];
+   
     if (len == 0)
         return;
 
     GLOBAL_INT_DISABLE();
     while(REG_FLASH_OPERATE_SW & 0x80000000);
-
-    for(j=0;j<((len-1)/32+1);j++)
+ 
+    while (len)
     {
         REG_FLASH_OPERATE_SW = (  (addr << BIT_ADDRESS_SW)
                                 | (FLASH_OPCODE_READ << BIT_OP_TYPE_SW)
@@ -323,14 +347,15 @@ void flash_read_data (uint8_t *buffer, uint32_t address, uint32_t len)
             buf[i] = REG_FLASH_DATA_FLASH_SW;
         }
 
-        if(len>32*(j+1))
-            memcpy(&buffer[k],buf,32);
-        else
+        for (i = (address & 0x1F); i < 32; i++)
         {
-            memcpy(&buffer[k],buf,len-k);
+            *buffer++ = pb[i];
+            address++;
+            len--;
+            if (len == 0)
+                break;
         }
-        k += 32;        
-    }
+    }    
     REG_FLASH_OPERATE_SW=FLASH_ADDR_FIX ;
     for (i=0; i<8; i++)
         REG_FLASH_DATA_SW_FLASH = 0xffffffff;
@@ -342,10 +367,10 @@ void flash_read_data (uint8_t *buffer, uint32_t address, uint32_t len)
 
 void flash_write_data (uint8_t *buffer, uint32_t address, uint32_t len)
 {
-    uint32_t i, j,k;
-    uint32_t addr = address;
-    uint32_t buf[8];
-    k=0;
+    uint32_t  i;
+    uint32_t addr = address&(~0x1F);
+    uint32_t buf[8] = {~0x00UL};
+    uint8_t *pb = (uint8_t *)&buf[0];
     if (len == 0)
         return;
     if (address<0x40000)
@@ -357,17 +382,22 @@ void flash_write_data (uint8_t *buffer, uint32_t address, uint32_t len)
     
     flash_enable_write_flag3=FLASH_WRITE_ENABLE3; 
     flash_wp_256k();
-    for(j=0;j<((len-1)/32+1);j++)
+
+    while(len) 
     {
-        if(len>32*(j+1))
-            memcpy(buf,&buffer[k],32);
-        else
+        if((address & 0x1F) || (len < 32))
+            flash_read_data(pb, addr, 32);
+
+        for(i = (address & 0x1F); i < 32; i++) 
         {
-         	for(i=0;i<8;i++)
-                buf[i]=0xffffffff;
-            memcpy(buf,&buffer[k],len-k);
+            if(len)
+            {
+                pb[i] = *buffer++;
+                address++;
+                len--;
+            }
         }
-        k += 32;
+
         flash_enable_write_flag4=FLASH_WRITE_ENABLE4; 
         for (i=0; i<8; i++)
             REG_FLASH_DATA_SW_FLASH = buf[i];
@@ -569,69 +599,6 @@ uint8_t flash_write(uint32_t flash_id, uint32_t address, uint32_t len, uint8_t *
 
 
 
-void udi_exchange_fdata_to_adjoining_next_sector(uint32_t data_addr, uint32_t len, uint32_t wr_point_inpage)
-{
-    /* assume: the space, from address(current sector) to next sector, can be operated  */
-    uint8_t tmp[UPDATE_CHUNK_SIZE];
-    int next_sector_addr;
-    int rd_addr;
-    int wr_addr;
-    int total_cnt;
-    int sub_cnt;
-    int wr_point = wr_point_inpage;
-    if((len > FLASH_ERASE_SECTOR_SIZE)
-            || (0 == len))
-    {
-        return;
-    }
-    next_sector_addr = (data_addr & (~FLASH_ERASE_SECTOR_SIZE_MASK)) + FLASH_ERASE_SECTOR_SIZE;
-    flash_erase_sector(next_sector_addr);
-    total_cnt = len;
-    rd_addr = data_addr;
-    wr_point = wr_point & FLASH_ERASE_SECTOR_SIZE_MASK;
-    wr_addr = next_sector_addr + wr_point;
-    while(total_cnt > 0)
-    {
-        sub_cnt = MIN(UPDATE_CHUNK_SIZE, total_cnt);
-        flash_read(flash_env.space_type, rd_addr, sub_cnt,tmp,NULL);
-        flash_write(flash_env.space_type, wr_addr, sub_cnt,tmp,NULL);
-        total_cnt -= sub_cnt;
-        rd_addr += sub_cnt;
-        wr_addr += sub_cnt;
-    }
-}
-
-
-void udi_exchange_fdata_to_adjoining_previous_sector(uint32_t data_addr, uint32_t len, uint32_t wr_point_inpage)
-{
-    /* assume: the space, from previous sector to address+len, can be operated  */
-    uint8_t tmp[UPDATE_CHUNK_SIZE];
-    uint32_t pre_sector_addr;
-    uint32_t rd_addr;
-    uint32_t wr_addr;
-    uint32_t total_cnt;
-    uint32_t sub_cnt;
-    uint32_t wr_point = wr_point_inpage;
-    if((len > FLASH_ERASE_SECTOR_SIZE)|| (0 == len))
-    {
-        return;
-    }
-    pre_sector_addr = (data_addr & (~FLASH_ERASE_SECTOR_SIZE_MASK)) - (uint32_t)FLASH_ERASE_SECTOR_SIZE;
-    flash_erase_sector(pre_sector_addr);
-    total_cnt = len;
-    rd_addr = data_addr;
-    wr_point = wr_point & FLASH_ERASE_SECTOR_SIZE_MASK;
-    wr_addr = pre_sector_addr + wr_point;
-    while(total_cnt > 0)
-    {
-        sub_cnt = MIN(UPDATE_CHUNK_SIZE, total_cnt);
-        flash_read(flash_env.space_type, rd_addr, sub_cnt,tmp,NULL);
-	 	flash_write(flash_env.space_type, wr_addr, sub_cnt,tmp,NULL);
-        total_cnt -= sub_cnt;
-        rd_addr += sub_cnt;
-        wr_addr += sub_cnt;
-    }
-}
 
 
 ////擦除函数，地址和长度都要4K的整数倍
@@ -659,13 +626,14 @@ uint8_t flash_erase(uint32_t flash_id, uint32_t address, uint32_t len, void (*ca
     {
         int i;
         int erase_whole_sector_cnt;
-        erase_whole_sector_cnt = erase_len >> FLASH_ERASE_SECTOR_SIZE_RSL_BIT_CNT;
+        //erase_whole_sector_cnt = erase_len >> FLASH_ERASE_SECTOR_SIZE_RSL_BIT_CNT;
+        erase_whole_sector_cnt = erase_len/FLASH_ERASE_SECTOR_SIZE + (erase_len%FLASH_ERASE_SECTOR_SIZE>0? 1:0);//不要求长度是4k整数倍
         flash_enable_erase_flag2=FLASH_ERASE_ENABLE2;
         for(i = 0; i < erase_whole_sector_cnt; i ++)
         {
             flash_erase_sector(erase_addr);
             erase_addr += FLASH_ERASE_SECTOR_SIZE;
-            erase_len -= FLASH_ERASE_SECTOR_SIZE;
+            //erase_len -= FLASH_ERASE_SECTOR_SIZE;
         }
     }
     while(0);

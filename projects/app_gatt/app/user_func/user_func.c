@@ -27,7 +27,7 @@ static user_info_t user_info =
 #else
     {"\x11\x22\x33\x44\x55\x66", "beken_master", 4, 6, "123456", "\xBF\x06\x39\x69\x23\x0C", 1, 300, 2048, 115200, 115200, 24, 0, 600, 0},
 #endif
-    {"v01.13", "t20210716180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
+    {"v01.14", "t20210821180609", "1234567890", "3CDE216050058" , "BLE_SCANN_GUN"},
     {0, 0xffff, 0, 100},
     #if !USB_DRIVER
     {0x500, 0x1000, 0x500, 0x1000, 1000, 256},
@@ -37,7 +37,7 @@ static user_info_t user_info =
     #endif
     {"UserInfo_v0.2"},
 };
-uint8_t dmo_channel = 0xFF;
+
 uint8_t *ble_data_buf;
 uint16_t ble_rx_data_len=0;
 static uint8_t save_user_info_flag = 0;
@@ -50,6 +50,7 @@ static uint8_t cable_sel_v;
 #else
 //bit0:gpio10 bit1:gpio11 bit2:gpio33
 uint8_t gpio_status_value = DEFAULT_STATUS;
+uint8_t dmo_channel = 0xFF;
 
 //bit7:ADC EN 
 //bit0:CH1 EN 
@@ -583,7 +584,7 @@ uint8_t get_ble_name(uint8_t *name)
 uint8_t get_ble_state(void)
 {
     uint8_t state;
-#if 0 //USB_DRIVER    
+#if USB_DRIVER    
     if(ke_state_get(KE_BUILD_ID(TASK_APP,0)) == APPC_LINK_CONNECTED)
 #else
     if(ke_state_get(KE_BUILD_ID(TASK_APP,dmo_channel)) == APPC_SERVICE_CONNECTED)
@@ -597,11 +598,12 @@ uint8_t get_ble_state(void)
     }
     return state;
 }
-
+#include "gapm.h"
+#include "gapm_int.h"
 enum appm_error set_ble_mac(uint8_t *mac)
 {  
     struct bd_addr b_addr;
-    
+    uint8_t privacy_cfg = 0;
     //bk_printf("\r\nsetmac: %02x%02x%02x%02x%02x%02x\r\n",
     //        mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     #if (PLF_NVDS)
@@ -614,7 +616,13 @@ enum appm_error set_ble_mac(uint8_t *mac)
     memcpy(b_addr.addr,mac,6);
     memcpy(&co_default_bdaddr, mac, 6);
     memcpy(user_info.ble_state.ble_mac, mac, 6);
-    
+    if (mac[5] & 0xC0)
+    {
+        // Host privacy enabled by default
+        privacy_cfg |= GAPM_PRIV_CFG_PRIV_ADDR_BIT;
+    }
+ //   GAPM_ADDR_TYPE_LSB
+    SETF(gapm_env.cfg_flags, GAPM_ADDR_TYPE, privacy_cfg);
     return APPM_ERROR_NO_ERROR;
 }
 
@@ -700,6 +708,7 @@ void set_ble_auto_connect(uint8_t flag)
         struct gap_bdaddr bdaddr;
         memcpy(bdaddr.addr.addr, user_info.ble_state.auto_conn_mac, 6);
         bdaddr.addr_type = ((bdaddr.addr.addr[5] & 0xC0) == 0xC0) ? ADDR_RAND : ADDR_PUBLIC;
+        bk_printf("%s\r\n", bdaddr.addr_type ? "ADDR_RAND" : "ADDR_PUBLIC");
         set_connect_start(bdaddr);
         ke_timer_set(APP_BLE_AUTO_CONN_HANDLER, TASK_APP, user_info.ble_state.auto_conn_time);
     }
@@ -791,7 +800,7 @@ bool appm_scan_adv_repor(void)
                 }
                 else aos_cli_printf(", ");               
             }
-            aos_cli_printf(",%d",appm_env.scan_filter[i].rssi);
+            aos_cli_printf(", %d, %d", appm_env.scan_filter[i].adv_addr_type, appm_env.scan_filter[i].rssi);
             aos_cli_printf("\r\n");
         }
         aos_cli_printf("}\r\n");
@@ -1061,6 +1070,7 @@ struct rev_ntf_data notify_data;
 extern void test_usb_device(void);
 static uint8_t adapter_in_flag = 0;
 
+#if 0
 uint8_t hexvalue[94]=
 {
     0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,
@@ -1085,6 +1095,41 @@ uint8_t keyvalue[47]=
     0x18,0x19,0x1A,0x1B,0x1C,0x1D,
     0x2D,0x2E,0x2F,0x30,0x31,0x33,0x34,0x36,0x37,0x38,0x35
 };
+#else
+uint8_t hexvalue[140]= 
+{
+	0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,
+    0x61,0x62,0x63,0x64,0x65,0x66,0x67,0x68,0x69,0x6A,
+    0x6B,0x6C,0x6D,0x6E,0x6F,0x70,0x71,0x72,0x73,0x74,
+    0x75,0x76,0x77,0x78,0x79,0x7A,
+    0x2D,0x3D,0x5B,0x5D,0x5C,0x3B,0x27,0x2C,0x2E,0x2F,0x60,
+    13,27,8,9,32,159,144,145,146,147,148,
+	149,150,151,152,153,154,155,132,
+	134,136,133,135,137,130,131,129,128,160,143,158,
+	157,156,142,138,139,140,142,161,162,163,164,
+	166,167,168,169,
+	/*以下是上面所有对应按键的shift大写*/
+    0x29,0x21,0x40,0x23,0x24,0x25,0x5E,0x26,0x2A,0x28,
+    0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4A,
+    0x4B,0x4C,0x4D,0x4E,0x4F,0x50,0x51,0x52,0x53,0x54,
+    0x55,0x56,0x57,0x58,0x59,0x5A,
+    0x5F,0x2B,0x7B,0x7D,0x7C,0x3A,0x22,0x3C,0x3E,0x3F,0x7E
+};
+
+uint8_t keyvalue[93] = 
+{
+	0x27,0x1E,0x1F,0x20,0x21,0x22,0x23,0x24,0x25,0x26,
+    0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,
+    0x0E,0x0F,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,
+    0x18,0x19,0x1A,0x1B,0x1C,0x1D,
+    0x2D,0x2E,0x2F,0x30,0x31,0x33,0x34,0x36,0x37,0x38,0x35,
+	0x28,0x29,0x2A,0x2B,0x2C,0x39,0x3A,0x3B,0x3C,0x3D,0x3E,
+	0x3F,0x40,0x41,0x42,0x43,0x44,0x45,0x49,
+	0x4A,0x4B,0x4C,0x4D,0x4E,0x4F,0x50,0x51,0x52,0x53,0x54,0x55,
+	0x56,0x57,0x58,0xe6,0xe4,0x46,0x58,0xe2,0xe0,0xe1,0xe5,
+	0x2b,0xab,0x28,0x29
+};
+#endif
 //0-9,a-z,-=[]\;',./ keyvalue
 
 void set_adapter_in_flag(uint8_t flag)
@@ -1110,9 +1155,9 @@ void app_send_keyboad_data(void)
                 //bk_printf("%02x ",ble_data_buf[usb_send_totail]);
                 //uart_clean_printf("%02x ",ble_data_buf[i]); 
                 memset(keybuf,0x0,8);        
-                for(uint8_t j = 0; j< 94; j++)
+                for(uint8_t j = 0; j< 140; j++)
                 {
-                    if((ble_data_buf[usb_send_totail] == hexvalue[j]) && (j < 47))/*正常按键*/
+                    if((ble_data_buf[usb_send_totail] == hexvalue[j]) && (j < 93))/*正常按键*/
                     {
                         keybuf[2] = keyvalue[j];
                         notify_data.notify_standard_key_status=1;
@@ -1128,7 +1173,7 @@ void app_send_keyboad_data(void)
                         //Delay_us(1000);
                         break;
                     }
-                    else if((ble_data_buf[usb_send_totail] == hexvalue[j]) && (j >= 47))/*shift组合按键*/
+                    else if((ble_data_buf[usb_send_totail] == hexvalue[j]) && (j >= 93))/*shift组合按键*/
                     {
                         //keybuf[0] = 0x02;
                         //notify_data.notify_standard_key_status=1;
@@ -1138,7 +1183,7 @@ void app_send_keyboad_data(void)
                         //Delay_us(400);
                         memset(keybuf,0x0,8);
                         keybuf[0] = 0x02;
-                        keybuf[2] = keyvalue[j-47];
+                        keybuf[2] = keyvalue[j-93];
                         notify_data.notify_standard_key_status=1;
                         memcpy(&notify_data.notify_standard_key[1],keybuf,sizeof(keybuf));//按下
                         test_usb_device();                        

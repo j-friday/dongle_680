@@ -335,22 +335,16 @@ static int gattc_event_ind_handler(ke_msg_id_t const msgid,
 {
     uint8_t state = ke_state_get(dest_id);
     uint8_t conidx = KE_IDX_GET(dest_id);
-    //bk_printf("sdp service task gattc_event_ind :%d:%d\r\n", KE_IDX_GET(dest_id), KE_IDX_GET(src_id));
-    //bk_printf("NOTIF RECIVE length:%d,value = \r\n",param->length);
-    //for(int i = 0; i< param->length; i++)
-    //{
-    //    bk_printf("%02x ",param->value[i]);
-    //}
-    //bk_printf("\r\n");
-//    #if DLT698_PROFILE
-//    //USER_PRINTF("ble rx\r\n");
-//    dmo_channel = conidx;
-//    for(int i=0;i<param->length;i++)///(send_len--)
-//    {
-//        ble_rx_buf[conidx][ble_rx_index[conidx]++] = param->value[i];
-//        ble_rx_index[conidx] = ble_rx_index[conidx] % BLE_RX_FIFO_MAX_COUNT;
-//    }
-//    #endif 
+    #if 0
+    bk_printf("sdp service task gattc_event_ind :%d:%d\r\n", KE_IDX_GET(dest_id), KE_IDX_GET(src_id));
+    bk_printf("NOTIF RECIVE length:%d,value = \r\n",param->length);
+    for(int i = 0; i< param->length; i++)
+    {
+        bk_printf("%02x ",param->value[i]);
+    }
+    bk_printf("\r\n");
+    #endif
+
     struct gattc_event_ind *ind;
         // allocate indication
     ind = KE_MSG_ALLOC_DYN(GATTC_EVENT_IND ,
@@ -368,21 +362,30 @@ static int gattc_event_ind_handler(ke_msg_id_t const msgid,
    
     return (KE_MSG_CONSUMED);
 }
-
+#include "user_func.h"
+#include "ke_event.h"
 static int gattc_event_req_ind_handler(ke_msg_id_t const msgid,
                                        struct gattc_event_ind const *param,
                                        ke_task_id_t const dest_id,
                                        ke_task_id_t const src_id)
 {
     uint8_t state = ke_state_get(dest_id);
-    uint8_t conidx = KE_IDX_GET(dest_id);
-/*    bk_printf("sdp RECIVE value =  \r\n");
+    
+    #if 0
+    bk_printf("sdp RECIVE value =  \r\n");
     for(int i = 0; i< param->length; i++)
     {
         bk_printf("%02x ",param->value[i]);
     }
-    bk_printf("\r\n");
-    */
+    bk_printf("\r\n");    
+    #endif
+    set_at_rsp_ch(1);
+    #if CLI_CONSOLE
+    store_uart_ringbuf_data((uint8_t *)param->value, param->length);
+    ke_event_set(KE_EVENT_AOS_CLI);
+    #endif
+    #if 1
+    uint8_t conidx = KE_IDX_GET(dest_id);
     struct gattc_event_ind *ind;
         // allocate indication
     ind = KE_MSG_ALLOC_DYN(GATTC_EVENT_REQ_IND ,
@@ -401,6 +404,7 @@ static int gattc_event_req_ind_handler(ke_msg_id_t const msgid,
     struct gattc_event_cfm *cfm  = KE_MSG_ALLOC(GATTC_EVENT_CFM, src_id, dest_id, gattc_event_cfm);
     cfm->handle = param->handle;
     ke_msg_send(cfm);
+    #endif
     return (KE_MSG_CONSUMED);
 }
 

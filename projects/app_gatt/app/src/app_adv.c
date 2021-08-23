@@ -107,7 +107,7 @@
 /// Fast advertising interval
 #define APP_ADV_FAST_INT        (32)
 
-
+#include "co_utils.h"
 /*
  * LOCAL FUNCTION DEFINITIONS
  ****************************************************************************************

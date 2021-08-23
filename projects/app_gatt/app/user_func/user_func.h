@@ -41,7 +41,9 @@
 
 #define USER_AT_CMD_SAVE_ADDR 0x7E000
 //#define BLE_RX_BUF_MAX        4096
+#if (!USB_DRIVER)
 extern uint8_t dmo_channel;
+#endif
 extern uint8_t *ble_data_buf;
 //extern uint8_t ble_data_buf[];
 extern uint16_t ble_rx_data_len;
