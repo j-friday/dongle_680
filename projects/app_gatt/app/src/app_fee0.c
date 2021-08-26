@@ -106,7 +106,7 @@ uint8_t app_fee4_send_ntf(uint8_t conidx,uint16_t len,uint8_t* buf)
 {
     bk_printf("%s:len:%d,state:0x%x %x\r\n",__func__,len,ke_state_get(KE_BUILD_ID(TASK_APP,conidx)), app_fee0_env.ntf_cfg[conidx]);
     uint8_t ret = APPM_ERROR_NO_ERROR;
-    if((ke_state_get(KE_BUILD_ID(TASK_APP,conidx)) == APPC_LINK_CONNECTED))// || ke_state_get(KE_BUILD_ID(TASK_APP,conidx)) == APPC_SERVICE_CONNECTED)
+    if((ke_state_get(KE_BUILD_ID(TASK_APP,conidx)) == APPC_LINK_CONNECTED) || (ke_state_get(KE_BUILD_ID(TASK_APP,conidx)) == APPC_SERVICE_CONNECTED))
     {
         if(app_fee0_env.ntf_cfg[conidx] != PRF_CLI_STOP_NTFIND)
         {
