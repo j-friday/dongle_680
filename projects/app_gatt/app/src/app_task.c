@@ -1140,12 +1140,12 @@ static int gapc_connection_req_ind_handler(ke_msg_id_t const msgid,
         #if !USB_DRIVER
         set_gpio_status(CONNECT_STATUS_BIT, CONNECT_SUCCESS);        
         #endif
-        {
-            uint8_t rsp_buff[20];
-            uint8_t len;
-            len = sprintf((char *)rsp_buff,"\r\nOK\r\n");
-            UART_SEND_AT(rsp_buff, len);
-        }
+//        {
+//            uint8_t rsp_buff[20];
+//            uint8_t len;
+//            len = sprintf((char *)rsp_buff,"\r\nOK\r\n");
+//            UART_SEND_AT(rsp_buff, len);
+//        }
         #if 1//(BLE_APP_SEC && !defined(BLE_APP_AM0))
         //if (app_sec_get_bond_status())
         {
