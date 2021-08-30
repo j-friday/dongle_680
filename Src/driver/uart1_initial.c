@@ -154,7 +154,7 @@ __RAM_CODE void UART1ISR(void)
 				app_send_ble_data(dmo_channel, tx_len, &uart1_rx_buf[pos]);
 				pos += tx_len;
 				sum_len -= tx_len;
-				Delay_us(10000);
+				//Delay_us(10000);
 			} while(sum_len > 0);
             clear_uart1_buffer();
             #endif
