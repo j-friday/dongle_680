@@ -455,7 +455,8 @@ static int gapc_bond_ind_handler(ke_msg_id_t const msgid,
                 sdp_discover_all_service(app_env.conidx);
             }
 			#if USB_DRIVER
-				set_adapter_in_flag(1);
+				//set_adapter_in_flag(1);
+				ke_timer_set(APP_ADAPTER_IN_HANDLE, TASK_APP, 100);
 			#endif           
             ke_timer_set(APP_CHANGE_MTU_SIZE_REQ, TASK_APP, 50);
         } break;

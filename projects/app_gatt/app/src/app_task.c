@@ -1836,6 +1836,13 @@ static int app_user_change_mtu_size_handler(ke_msg_id_t const msgid,
 }
 
 #if USB_DRIVER
+static int app_adapterin_process_handler(void)
+{
+	//bk_printf("set flag\n");
+	set_adapter_in_flag(1);
+	
+	return (KE_MSG_CONSUMED);
+}
 
 static int app_led_mode_process_handler(ke_msg_id_t const msgid,
                                      void const *param,
@@ -1953,6 +1960,7 @@ KE_MSG_HANDLER_TAB(appm)
     {APP_CHANGE_MTU_SIZE_REQ,   (ke_msg_func_t)app_user_change_mtu_size_handler},
     #if USB_DRIVER
     {APP_LED_MODE_PROCESS_HANDLER,	(ke_msg_func_t)app_led_mode_process_handler},
+	{APP_ADAPTER_IN_HANDLE, (ke_msg_func_t)app_adapterin_process_handler},
     #else
     {APP_BLE_AUTO_CONN_HANDLER, (ke_msg_func_t)app_ble_auto_conn_handler},
     {APPM_SCAN_TIMEOUT_TIMER,   (ke_msg_func_t)appm_scan_dev_timerout_handler},
